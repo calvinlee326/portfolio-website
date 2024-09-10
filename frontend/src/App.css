@@ -1,14 +1,64 @@
-.App {
-  text-align: center;
+/* App.css */
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Arial', sans-serif;
+  background-color: #0e1a2b; /* 黑色背景 */
+  color: white; /* 預設白色文字 */
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
+.App {
+  text-align: center;
+  padding: 50px;
+}
+
+header {
+  margin-bottom: 50px;
+}
+
+h1 a {
+  text-decoration: none;
+  color: white; /* 白色標題 */
+  font-size: 3rem;
+  font-weight: bold;
+}
+
+h2 {
+  font-size: 2rem;
+  color: #00FF00; /* Typewriter綠色 */
+}
+
+.icons a {
+  margin: 0 15px;
+  color: #8a8f98; /* 圖標為灰色 */
+  font-size: 2rem;
+  transition: color 0.3s ease;
+}
+
+.icons a:hover {
+  color: white; /* 懸停時變成白色 */
+}
+
+.projects-section {
+  margin-top: 50px;
+}
+
+.project-box {
+  background-color: #162336;
+  border: 1px solid #3b3f4a;
+  padding: 20px;
+  margin: 10px;
+  border-radius: 8px;
+  display: inline-block;
+  width: 250px;
   color: white;
+}
+
+.project-box a {
+  color: #00FF00; /* 專案連結為綠色 */
+  text-decoration: none;
+}
+
+.project-box a:hover {
+  text-decoration: underline;
 }
