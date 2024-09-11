@@ -24,20 +24,17 @@ To run this project locally, follow the steps below:
    ```bash
    git clone https://github.com/calvinlee326/portfolio-website.git
 
-Navigate to the project directory:
+2. Navigate to the project directory:
 
-bash
-Copy code
+```bash
 cd portfolio-website
 Install dependencies:
 
-bash
-Copy code
+```bash
 npm install
 Start the development server:
 
-bash
-Copy code
+```bash
 npm start
 The website should now be running on http://localhost:3000.
 
