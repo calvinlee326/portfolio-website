@@ -11,7 +11,7 @@ function App() {
     <div className="App">
       <header>
         <h1>
-          <a href="/">Calvin's Portfolio</a>
+          <a href="/">Calvin Lee</a>
         </h1>
         <h2>
           I'm {' '}
