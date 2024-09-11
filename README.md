@@ -56,5 +56,5 @@ Contributions are welcome! Feel free to fork the repository and create a pull re
 Contact
 For any inquiries, feel free to reach out via:
 
-LinkedIn: Calvin Lee's LinkedIn
+LinkedIn: https://www.linkedin.com/in/chunchenglee326/
 Email: calvinlee326@gmail.com
