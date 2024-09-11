@@ -32,10 +32,9 @@ To run this project locally, follow the steps below:
    ```bash
    npm start
 
-   The website should now be running on http://localhost:3000.
+The website should now be running on http://localhost:3000.
 
-
-Deployment
+## Deployment
 This portfolio is deployed using Vercel. Every push to the main branch triggers an automatic deployment.
 
 To deploy your own version:
@@ -43,35 +42,9 @@ To deploy your own version:
 Push the changes to your GitHub repository.
 Vercel will automatically build and deploy the site.
 Alternatively, run npm run build to create a production build locally.
-Project Demo
-Here are some screenshots of the website:
 
-Home Page
-Include a screenshot of your homepage here.
 
-Project Section
-Include a screenshot of the project demo section here.
-
-You can view the live site at https://your-vercel-domain.vercel.app.
-
-Contributing
-Contributions are welcome! Feel free to fork the repository and create a pull request. For major changes, please open an issue to discuss what you would like to change.
-
-Contact
-For any inquiries, feel free to reach out via:
-
-LinkedIn: Calvin Lee's LinkedIn
-Email: calvinlee326@gmail.com
-
-Deployment
-This portfolio is deployed using Vercel. Every push to the main branch triggers an automatic deployment.
-
-To deploy your own version:
-
-Push the changes to your GitHub repository.
-Vercel will automatically build and deploy the site.
-Alternatively, run npm run build to create a production build locally.
-Project Demo
+## Project Demo
 Here are screenshots of the website:
 <img width="1414" alt="Screenshot 2024-09-11 at 10 28 55 AM" src="https://github.com/user-attachments/assets/49af5c32-e97e-47d5-a085-3119cfa58c01">
 
