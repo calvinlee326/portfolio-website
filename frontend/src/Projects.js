@@ -15,10 +15,10 @@ function Projects() {
       </div>
       <div className="project-item">
         <div className="project-title">
-          <a href="https://github.com/your-github/project-2" target="_blank" rel="noopener noreferrer">Subway System</a>
+          <a href="https://github.com/calvinlee326/steering_angle" target="_blank" rel="noopener noreferrer">Steering Prediction - QCar</a>
         </div>
         <div className="project-description">
-          Node.js Backend API - TypeScript, Express.js, Prism ORM, Neo4j, Postgres, Docker & Docker Compose
+          Implements a computer vision-based steering angle prediction system for the Quanser QCar platform.
         </div>
       </div>
       <div className="project-item">
