@@ -14,16 +14,18 @@ function App() {
           <a href="/">Calvin Lee</a>
         </h1>
         <h2>
-          I'm {' '}
-          <Typewriter
-            words={['Software Engineer', 'Data Enthusiast', 'AI Enthusiast']}
-            loop={Infinity}
-            cursor
-            cursorStyle="|"
-            typeSpeed={70}
-            deleteSpeed={50}
-            delaySpeed={1000}
-          />
+          <span className="typewriter-prefix">I'm </span>
+          <span>
+            <Typewriter
+              words={['Software Engineer', 'Data Enthusiast', 'AI Enthusiast']}
+              loop={Infinity}
+              cursor
+              cursorStyle="|"
+              typeSpeed={70}
+              deleteSpeed={50}
+              delaySpeed={1000}
+            />
+          </span>
         </h2>
         <div className="icons">
           <a href="https://www.linkedin.com/in/chunchenglee326/" target="_blank" rel="noopener noreferrer">
@@ -41,12 +43,11 @@ function App() {
         </div>
       </header>
 
-      <section>
-        <h2 style={{ color: '#00FF00' }}>Demos</h2>
+      <section className="demos-section">
+        <h2>Demos</h2>
         <Projects />
       </section>
     </div>
-    
   );
 }
 
