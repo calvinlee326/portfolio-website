@@ -6,10 +6,11 @@ function Projects() {
     <div className="projects-section">
       <div className="project-item">
         <div className="project-title">
-          <a href="https://github.com/your-github/project-1" target="_blank" rel="noopener noreferrer">Weather Web App</a>
+          <a href="https://github.com/calvinlee326/Converter-Android-App" target="_blank" rel="noopener noreferrer">Converter-Android-App
+</a>
         </div>
         <div className="project-description">
-          A VueJS webApp - Vue3, TypeScript, Vuetify, Pinia, Local Storage, IndexedDB, MiniSearch
+          This is a simple and easy-to-use Android app designed to convert various units such as length, weight, temperature, and more.
         </div>
       </div>
       <div className="project-item">
