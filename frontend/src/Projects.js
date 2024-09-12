@@ -23,10 +23,10 @@ function Projects() {
       </div>
       <div className="project-item">
         <div className="project-title">
-          <a href="https://github.com/your-github/project-3" target="_blank" rel="noopener noreferrer">Go http load tester</a>
+          <a href="https://github.com/calvinlee326/url-shortener" target="_blank" rel="noopener noreferrer">URL Shortener</a>
         </div>
         <div className="project-description">
-          Go Lang SRE tool - Go routines, Go channels, Go Ticker, Command line flags, Docker & Docker Compose
+          A simple Django-based URL shortener that allows users to shorten long URLs and redirect to the original links using the generated short codes.
         </div>
       </div>
     </div>
