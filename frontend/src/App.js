@@ -17,7 +17,7 @@ function App() {
           <span className="typewriter-prefix">I'm </span>
           <span>
             <Typewriter
-              words={['Backend Developer', 'AI Enthusiast', 'QA Engineer Experienced']}
+              words={['Backend Developer', 'AI Enthusiast', 'QA Engineer']}
               loop={Infinity}
               cursor
               cursorStyle="|"
