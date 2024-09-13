@@ -15,7 +15,7 @@ function Projects() {
       </div>
       <div className="project-item">
         <div className="project-title">
-          <a href="https://github.com/calvinlee326/steering_angle" target="_blank" rel="noopener noreferrer">Steering Prediction - QCar</a>
+          <a href="https://github.com/calvinlee326/steering_angle" target="_blank" rel="noopener noreferrer">Autonomous Driving Quanser Qcar</a>
         </div>
         <div className="project-description">
           Implements a computer vision-based steering angle prediction system for the Quanser QCar platform.
@@ -28,6 +28,9 @@ function Projects() {
         <div className="project-description">
           A simple Django-based URL shortener that allows users to shorten long URLs and redirect to the original links using the generated short codes.
         </div>
+      </div>
+      <div className="more-github">
+        <a href="https://github.com/calvinlee326?tab=repositories" target="_blank" rel="noopener noreferrer">View more projects on GitHub</a>
       </div>
     </div>
   );

@@ -123,3 +123,19 @@ h2 span {
     border-radius: 8px 8px 0 0;
   }
 }
+
+.more-github {
+  position: relative; /* 使其相對於父元素 */
+  text-align: right; /* 右對齊 */
+  margin-top: 20px; /* 上方間距 */
+}
+
+.more-github a {
+  color: #a4baa4; /* 連結顏色 */
+  text-decoration: none; /* 去掉下劃線 */
+  font-weight: bold; /* 加粗 */
+}
+
+.more-github a:hover {
+  text-decoration: underline; /* 滑鼠懸停時顯示下劃線 */
+}
