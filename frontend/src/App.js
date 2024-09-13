@@ -44,7 +44,7 @@ function App() {
       </header>
 
       <section className="demos-section">
-        <h2>Demos</h2>
+        <h2>Projects</h2>
         <Projects />
       </section>
     </div>
