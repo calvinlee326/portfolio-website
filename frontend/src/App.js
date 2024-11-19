@@ -34,10 +34,10 @@ function App() {
           <a href="https://github.com/calvinlee326" target="_blank" rel="noopener noreferrer">
             <FontAwesomeIcon icon={faGithub} />
           </a>
-          <a href="mailto:calvinlee326@gmail.com">
+          <a href="mailto:chunchenglee@outlook.com">
             <FontAwesomeIcon icon={faEnvelope} />
           </a>
-          <a href="https://tinyurl.com/ye2b3nyt" target="_blank" rel="noopener noreferrer">
+          <a href="https://drive.google.com/file/d/1PhwIVJ5egaXMwoxL23juFsIrhWARsb9t/view?usp=sharing" target="_blank" rel="noopener noreferrer">
             <FontAwesomeIcon icon={faFileAlt} />
           </a>
         </div>
