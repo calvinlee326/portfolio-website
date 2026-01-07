@@ -14,7 +14,7 @@ const LOCATION = 'Los Angeles, CA'
 const LANGUAGES = ['English', 'Mandarin', 'Taiwanese']
 const LINKEDIN = 'https://www.linkedin.com/in/chunchenglee326/'
 const GITHUB_USER = 'calvinlee326'
-const RESUME_URL = 'https://drive.google.com/file/d/1dZIebj4e1SkmPqUdHaZuWn_a1sGRwovE/view?usp=sharing'
+const RESUME_URL = 'https://drive.google.com/file/d/1BSBaHCnNDVzVW-mEGur0F76NA1u1KCEC/view?usp=sharing'
 const EMAIL = 'chunchenglee@outlook.com'
 const PINNED_REPOS = ['palm-reading-app', 'summary-extension', 'url-shortener']
 
