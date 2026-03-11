@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Badge } from '@/components/ui/badge'
-import { Github, Linkedin, Instagram, Mail, FileText, MapPin, Languages, ExternalLink, ArrowRight, Star, Code2, Loader2 } from 'lucide-react'
+import { LucideGithub, LucideLinkedin, LucideInstagram, Mail, FileText, MapPin, Languages, ExternalLink, ArrowRight, Star, Code2, Loader2 } from 'lucide-react'
 import { motion } from 'framer-motion'
 
 // ==== CONFIG ================================================================
@@ -150,13 +150,13 @@ function Socials({ compact = false }: { compact?: boolean }) {
   return (
     <div className={`flex ${c}`}>
       <a aria-label="GitHub" href={`https://github.com/${GITHUB_USER}`} target="_blank" rel="noreferrer">
-        <Button variant="ghost" className="hover:bg-white/10 p-2"><Github className="h-5 w-5" /></Button>
+        <Button variant="ghost" className="hover:bg-white/10 p-2"><LucideGithub className="h-5 w-5" /></Button>
       </a>
       <a aria-label="LinkedIn" href={LINKEDIN} target="_blank" rel="noreferrer">
-        <Button variant="ghost" className="hover:bg-white/10 p-2"><Linkedin className="h-5 w-5" /></Button>
+        <Button variant="ghost" className="hover:bg-white/10 p-2"><LucideLinkedin className="h-5 w-5" /></Button>
       </a>
       <a aria-label="Instagram" href={`https://instagram.com/calvinlee326`} target="_blank" rel="noreferrer">
-        <Button variant="ghost" className="hover:bg-white/10 p-2"><Instagram className="h-5 w-5" /></Button>
+        <Button variant="ghost" className="hover:bg-white/10 p-2"><LucideInstagram className="h-5 w-5" /></Button>
       </a>
     </div>
   )
@@ -263,8 +263,8 @@ function Resume() {
             </ul>
             <div className="mt-4 flex flex-wrap gap-2">
               <a href={RESUME_URL} target="_blank" rel="noreferrer"><Button><FileText className="mr-2 h-4 w-4"/>Open PDF</Button></a>
-              <a href={`https://github.com/${GITHUB_USER}`} target="_blank" rel="noreferrer"><Button variant="secondary" className="bg-white/10 text-white hover:bg-white/20"><Github className="mr-2 h-4 w-4"/>GitHub</Button></a>
-              <a href={LINKEDIN} target="_blank" rel="noreferrer"><Button variant="secondary" className="bg-white/10 text-white hover:bg-white/20"><Linkedin className="mr-2 h-4 w-4"/>LinkedIn</Button></a>
+              <a href={`https://github.com/${GITHUB_USER}`} target="_blank" rel="noreferrer"><Button variant="secondary" className="bg-white/10 text-white hover:bg-white/20"><LucideGithub className="mr-2 h-4 w-4"/>GitHub</Button></a>
+              <a href={LINKEDIN} target="_blank" rel="noreferrer"><Button variant="secondary" className="bg-white/10 text-white hover:bg-white/20"><LucideLinkedin className="mr-2 h-4 w-4"/>LinkedIn</Button></a>
             </div>
           </CardContent>
         </Card>
@@ -276,17 +276,33 @@ function Resume() {
 function Contact() {
   const formRef = useRef<HTMLFormElement | null>(null)
   const [sending, setSending] = useState(false)
-  function onSubmit(e: React.FormEvent) {
+  const [status, setStatus] = useState<'idle' | 'success' | 'error'>('idle')
+  async function onSubmit(e: React.FormEvent) {
     e.preventDefault()
     const fd = new FormData(formRef!.current as HTMLFormElement)
-    const name = fd.get('name')
-    const email = fd.get('email')
-    const message = fd.get('message')
     setSending(true)
-    const subject = encodeURIComponent(`Hello from ${name}`)
-    const body = encodeURIComponent(`Name: ${name}\nEmail: ${email}\n\n${message}`)
-    window.location.href = `mailto:${EMAIL}?subject=${subject}&body=${body}`
-    setTimeout(() => setSending(false), 800)
+    setStatus('idle')
+    try {
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: fd.get('name'),
+          email: fd.get('email'),
+          message: fd.get('message'),
+        }),
+      })
+      if (res.ok) {
+        setStatus('success')
+        formRef.current?.reset()
+      } else {
+        setStatus('error')
+      }
+    } catch {
+      setStatus('error')
+    } finally {
+      setSending(false)
+    }
   }
   return (
     <section id="contact" className="py-12">
@@ -301,7 +317,8 @@ function Contact() {
               <Textarea name="message" placeholder="Message" rows={5} required />
               <div className="flex items-center gap-3">
                 <Button type="submit" disabled={sending}>{sending ? (<><Loader2 className="h-4 w-4 mr-2 animate-spin"/>Sending…</>) : 'Send'}</Button>
-                <p className="text-xs text-slate-400">If send button is not working, please send an dm to <a href={`https://www.linkedin.com/in/chunchenglee326/`} className="text-sky-300 hover:text-sky-200">LinkedIn</a></p>
+                {status === 'success' && <p className="text-sm text-emerald-400">Message sent! I'll get back to you soon.</p>}
+                {status === 'error' && <p className="text-sm text-rose-400">Something went wrong. Please try <a href={LINKEDIN} className="underline hover:text-rose-300">LinkedIn</a>.</p>}
               </div>
             </form>
           </CardContent>
@@ -310,8 +327,8 @@ function Contact() {
           <CardHeader className="pb-2"><CardTitle className="text-lg">Connect</CardTitle></CardHeader>
           <CardContent>
             <div className="flex flex-col gap-2 text-sm">
-              <a className="inline-flex items-center gap-2 hover:text-white text-slate-300" href={`https://github.com/${GITHUB_USER}`} target="_blank" rel="noreferrer"><Github className="h-4 w-4"/> github.com/{GITHUB_USER}</a>
-              <a className="inline-flex items-center gap-2 hover:text-white text-slate-300" href={LINKEDIN} target="_blank" rel="noreferrer"><Linkedin className="h-4 w-4"/> LinkedIn</a>
+              <a className="inline-flex items-center gap-2 hover:text-white text-slate-300" href={`https://github.com/${GITHUB_USER}`} target="_blank" rel="noreferrer"><LucideGithub className="h-4 w-4"/> github.com/{GITHUB_USER}</a>
+              <a className="inline-flex items-center gap-2 hover:text-white text-slate-300" href={LINKEDIN} target="_blank" rel="noreferrer"><LucideLinkedin className="h-4 w-4"/> LinkedIn</a>
               <a className="inline-flex items-center gap-2 hover:text-white text-slate-300" href={`mailto:${EMAIL}`}><Mail className="h-4 w-4"/> {EMAIL}</a>
               <div className="inline-flex items-center gap-2 text-slate-300"><MapPin className="h-4 w-4"/> {LOCATION}</div>
               <div className="inline-flex items-center gap-2 text-slate-300"><Languages className="h-4 w-4"/> {LANGUAGES.join(' • ')}</div>
