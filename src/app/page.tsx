@@ -1,11 +1,11 @@
 'use client'
-import React, { useEffect, useMemo, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Badge } from '@/components/ui/badge'
-import { LucideGithub, LucideLinkedin, LucideInstagram, Mail, FileText, MapPin, Languages, ExternalLink, ArrowRight, Star, Code2, Loader2 } from 'lucide-react'
+import { LucideGithub, LucideLinkedin, LucideInstagram, Mail, FileText, MapPin, Languages, ExternalLink, ArrowRight, Star, Code2, Loader2, ChevronLeft, ChevronRight, GitFork } from 'lucide-react'
 import { motion } from 'framer-motion'
 
 // ==== CONFIG ================================================================
@@ -16,7 +16,24 @@ const LINKEDIN = 'https://www.linkedin.com/in/chunchenglee326/'
 const GITHUB_USER = 'calvinlee326'
 const RESUME_URL = 'https://drive.google.com/file/d/1BSBaHCnNDVzVW-mEGur0F76NA1u1KCEC/view?usp=sharing'
 const EMAIL = 'chunchenglee@outlook.com'
-const PINNED_REPOS = ['palm-reading-app', 'summary-extension', 'url-shortener']
+const LANG_COLORS: Record<string, string> = {
+  Python: '#3776ab', JavaScript: '#f7df1e', TypeScript: '#3178c6',
+  HTML: '#e34f26', CSS: '#1572b6', Go: '#00add8', Rust: '#dea584',
+  Java: '#b07219', Ruby: '#701516', Swift: '#fa7343', Kotlin: '#a97bff',
+  Shell: '#89e051', 'C++': '#f34b7d', C: '#555555',
+}
+
+const REPO_DESCRIPTIONS: Record<string, string> = {
+  'palm-reading-app': 'AI-powered palm reading web app using GPT-4o Vision. Upload a palm photo and get personality, love & fortune analysis. Built with FastAPI + Next.js.',
+  'summary-extension': 'Chrome extension that summarizes selected text using GPT via a secure backend API. Right-click any text → instant AI summary.',
+  'aiagent': 'Collection of AI agent workflow patterns using OpenAI GPT — structured outputs, tool calling, prompt chaining, and external API integration.',
+  'component-claude': 'AI-powered React component generator (UIGen) with live preview. Describe a UI and get working React code instantly via Claude API.',
+  'socket-io-demo': 'Real-time chat app built with Socket.IO featuring instant messaging, message persistence, and multi-client support.',
+  'password-generator': 'Browser-based password generator with customizable length, character sets, and one-click copy. Pure HTML/CSS/JS, no dependencies.',
+  'blackjack': 'Casino-style Blackjack game playable in the browser. Hit, stand, and try to reach 21 without busting.',
+  'scoreboard': 'Live basketball scoreboard — track home/guest scores, add 1/2/3 points, and manually edit scores. No build step required.',
+  'portfolio-website': 'This portfolio — built with Next.js, Tailwind CSS, Framer Motion, and the Resend email API.',
+}
 
 const HIGHLIGHTS = [
   'Backend-focused SWE (Python/Django, FastAPI)',
@@ -174,36 +191,35 @@ function Actions() {
 function Projects() {
   return (
     <section id="projects" className="py-8">
-      <div className="flex items-end justify-between mb-4">
-        <h2 className="text-2xl font-bold">Projects</h2>
-        <a className="text-sm text-slate-300 hover:text-white" href={`https://github.com/${GITHUB_USER}`} target="_blank" rel="noreferrer">See all <ExternalLink className="inline-block h-4 w-4 ml-1"/></a>
+      <div className="flex items-end justify-between mb-6">
+        <div>
+          <h2 className="text-2xl font-bold">Projects</h2>
+          <p className="text-sm text-slate-400 mt-1">Latest from GitHub — auto-updated</p>
+        </div>
+        <a className="text-sm text-slate-300 hover:text-white flex items-center gap-1" href={`https://github.com/${GITHUB_USER}`} target="_blank" rel="noreferrer">See all <ExternalLink className="h-4 w-4"/></a>
       </div>
-      <ProjectGrid />
+      <ProjectCarousel />
     </section>
   )
 }
 
-function ProjectGrid() {
+function ProjectCarousel() {
   const [repos, setRepos] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [err, setErr] = useState<string | null>(null)
+  const [page, setPage] = useState(0)
+  const [paused, setPaused] = useState(false)
+  const PER_PAGE = 3
+  const totalPages = Math.ceil(repos.length / PER_PAGE)
+
   useEffect(() => {
     async function load() {
       try {
-        const byNames = await Promise.all(
-          PINNED_REPOS.map(async (name) => {
-            const r = await fetch(`https://api.github.com/repos/${GITHUB_USER}/${name}`)
-            return r.ok ? r.json() : null
-          })
-        )
-        let list = byNames.filter(Boolean) as any[]
-        if (list.length === 0) {
-          const r = await fetch(`https://api.github.com/users/${GITHUB_USER}/repos?per_page=100&sort=updated`)
-          const all = r.ok ? await r.json() : []
-          list = all.filter((x: any) => !x.fork).sort((a: any, b: any) => (b.stargazers_count || 0) - (a.stargazers_count || 0)).slice(0, 6)
-        }
+        const r = await fetch(`https://api.github.com/users/${GITHUB_USER}/repos?per_page=30&sort=updated&type=owner`)
+        const all = r.ok ? await r.json() : []
+        const list = (all as any[]).filter((x) => !x.fork).slice(0, 9)
         setRepos(list)
-      } catch (e) {
+      } catch {
         setErr('Could not load GitHub repos.')
       } finally {
         setLoading(false)
@@ -212,29 +228,87 @@ function ProjectGrid() {
     load()
   }, [])
 
-  if (loading) return (<div className="py-10 flex items-center justify-center text-slate-300"><Loader2 className="h-5 w-5 mr-2 animate-spin"/> Loading projects…</div>)
+  const next = useCallback(() => setPage((p) => (p + 1) % totalPages), [totalPages])
+  const prev = useCallback(() => setPage((p) => (p - 1 + totalPages) % totalPages), [totalPages])
+
+  useEffect(() => {
+    if (paused || totalPages <= 1) return
+    const t = setInterval(next, 3500)
+    return () => clearInterval(t)
+  }, [paused, next, totalPages])
+
+  if (loading) return (
+    <div className="py-16 flex items-center justify-center text-slate-400">
+      <Loader2 className="h-5 w-5 mr-2 animate-spin"/> Loading projects…
+    </div>
+  )
   if (err) return <p className="text-sm text-rose-300">{err}</p>
+
+  const visible = repos.slice(page * PER_PAGE, page * PER_PAGE + PER_PAGE)
+
   return (
-    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-      {repos.map((r: any) => (
-        <motion.div key={r.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
-          <Card className="group bg-white/5 border-white/10 hover:border-white/20 transition">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-lg flex items-center justify-between gap-2">
-                <span className="truncate flex items-center gap-2"><Code2 className="h-4 w-4 shrink-0"/> {r.name}</span>
-                <span className="flex items-center text-sm text-amber-300/90"><Star className="h-4 w-4 mr-1"/>{r.stargazers_count}</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="pt-0">
-              <p className="text-sm text-slate-300 min-h-[42px] line-clamp-2">{r.description || 'No description provided.'}</p>
-              <div className="mt-3 flex items-center justify-between">
-                <div className="text-xs text-slate-400">{r.language || ''}</div>
-                <a href={r.html_url} target="_blank" rel="noreferrer" className="text-sm inline-flex items-center text-sky-300 hover:text-sky-200">Open <ExternalLink className="h-4 w-4 ml-1"/></a>
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
-      ))}
+    <div onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)}>
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {visible.map((r: any, i: number) => (
+          <motion.div
+            key={`${page}-${r.id}`}
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.35, delay: i * 0.07 }}
+          >
+            <a href={r.html_url} target="_blank" rel="noreferrer" className="block h-full">
+              <Card className="group h-full bg-white/5 border-white/10 hover:border-blue-400/40 hover:bg-white/8 transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/10 cursor-pointer">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-base flex items-center justify-between gap-2">
+                    <span className="truncate flex items-center gap-2">
+                      <Code2 className="h-4 w-4 shrink-0 text-blue-400"/>
+                      <span className="group-hover:text-blue-300 transition-colors">{r.name}</span>
+                    </span>
+                    <span className="flex items-center gap-2 shrink-0 text-sm">
+                      {r.stargazers_count > 0 && <span className="flex items-center text-amber-300/90"><Star className="h-3.5 w-3.5 mr-0.5"/>{r.stargazers_count}</span>}
+                      {r.forks_count > 0 && <span className="flex items-center text-slate-400"><GitFork className="h-3.5 w-3.5 mr-0.5"/>{r.forks_count}</span>}
+                    </span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="pt-0 flex flex-col gap-3">
+                  <p className="text-sm text-slate-300 line-clamp-2 min-h-[40px]">{REPO_DESCRIPTIONS[r.name] || r.description || 'No description provided.'}</p>
+                  <div className="flex items-center justify-between mt-auto">
+                    {r.language ? (
+                      <span className="flex items-center gap-1.5 text-xs text-slate-400">
+                        <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: LANG_COLORS[r.language] || '#888' }}/>
+                        {r.language}
+                      </span>
+                    ) : <span/>}
+                    <span className="text-xs text-slate-500">
+                      {new Date(r.pushed_at).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
+                    </span>
+                  </div>
+                </CardContent>
+              </Card>
+            </a>
+          </motion.div>
+        ))}
+      </div>
+
+      {totalPages > 1 && (
+        <div className="flex items-center justify-center gap-4 mt-6">
+          <button onClick={prev} className="p-1.5 rounded-full hover:bg-white/10 text-slate-400 hover:text-white transition">
+            <ChevronLeft className="h-5 w-5"/>
+          </button>
+          <div className="flex gap-2">
+            {Array.from({ length: totalPages }).map((_, i) => (
+              <button
+                key={i}
+                onClick={() => setPage(i)}
+                className={`h-2 rounded-full transition-all duration-300 ${i === page ? 'w-6 bg-blue-400' : 'w-2 bg-white/20 hover:bg-white/40'}`}
+              />
+            ))}
+          </div>
+          <button onClick={next} className="p-1.5 rounded-full hover:bg-white/10 text-slate-400 hover:text-white transition">
+            <ChevronRight className="h-5 w-5"/>
+          </button>
+        </div>
+      )}
     </div>
   )
 }
