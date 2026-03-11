@@ -454,23 +454,36 @@ function Resume() {
           </Card>
         </FadeIn>
         <FadeIn delay={0.2}>
-          <Card className="bg-white/5 border-white/10">
-            <CardHeader><CardTitle className="text-lg">About & Quick Links</CardTitle></CardHeader>
-            <CardContent>
-              <ul className="space-y-3 text-slate-300 text-sm">
-                <li className="flex gap-2"><span className="text-blue-400 shrink-0">▸</span>Backend‑leaning SWE experienced with Python (Django, FastAPI), SQL, and cloud deploys.</li>
-                <li className="flex gap-2"><span className="text-blue-400 shrink-0">▸</span>Built AI apps using GPT‑4o Vision; integrated Stripe payments; designed RESTful APIs.</li>
-                <li className="flex gap-2"><span className="text-blue-400 shrink-0">▸</span>Strong testing mindset from prior QA automation experience.</li>
-              </ul>
-              <div className="mt-5 flex flex-wrap gap-2">
+          <Card className="bg-white/5 border-white/10 h-full">
+            <CardContent className="pt-6 flex flex-col h-full">
+              {/* Summary */}
+              <p className="text-xs font-semibold uppercase tracking-widest text-blue-400 mb-4">Summary</p>
+              <div className="space-y-4 flex-1">
+                {[
+                  { label: 'Backend Engineering', desc: 'Python (Django, FastAPI), PostgreSQL, REST APIs, cloud deployments on AWS & Fly.io.' },
+                  { label: 'AI Integration', desc: 'GPT-4o Vision multimodal apps, prompt engineering, OpenAI API, LangChain workflows.' },
+                  { label: 'AI Chatbot', desc: 'Full-stack AI chatbot with GPT-4o-mini, RAG via ChromaDB, multi-turn memory, JWT auth, follow-up suggestions, and a resizable widget.' },
+                  { label: 'Payments & Quality', desc: 'Stripe payment systems, end-to-end QA automation, test-driven development mindset.' },
+                ].map((item) => (
+                  <div key={item.label} className="flex gap-3">
+                    <span className="mt-0.5 h-2 w-2 rounded-full bg-blue-400 shrink-0" />
+                    <div>
+                      <p className="text-sm font-semibold text-white">{item.label}</p>
+                      <p className="text-xs text-slate-400 mt-0.5 leading-relaxed">{item.desc}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              {/* Links */}
+              <div className="mt-6 pt-5 border-t border-white/10 flex flex-wrap gap-2">
                 <a href={RESUME_URL} target="_blank" rel="noreferrer">
-                  <Button className="bg-blue-600 hover:bg-blue-500"><FileText className="mr-2 h-4 w-4" />Open PDF</Button>
+                  <Button className="bg-blue-600 hover:bg-blue-500 text-sm"><FileText className="mr-2 h-4 w-4" />Download PDF</Button>
                 </a>
                 <a href={`https://github.com/${GITHUB_USER}`} target="_blank" rel="noreferrer">
-                  <Button variant="secondary" className="bg-white/10 text-white hover:bg-white/20"><LucideGithub className="mr-2 h-4 w-4" />GitHub</Button>
+                  <Button variant="secondary" className="bg-white/10 text-white hover:bg-white/20 text-sm"><LucideGithub className="mr-2 h-4 w-4" />GitHub</Button>
                 </a>
                 <a href={LINKEDIN} target="_blank" rel="noreferrer">
-                  <Button variant="secondary" className="bg-white/10 text-white hover:bg-white/20"><LucideLinkedin className="mr-2 h-4 w-4" />LinkedIn</Button>
+                  <Button variant="secondary" className="bg-white/10 text-white hover:bg-white/20 text-sm"><LucideLinkedin className="mr-2 h-4 w-4" />LinkedIn</Button>
                 </a>
               </div>
             </CardContent>
