@@ -260,12 +260,12 @@ function SpotifyWidget() {
   useEffect(() => {
     async function load() {
       try {
-        const res = await fetch('/api/spotify')
+        const res = await fetch('/api/spotify', { cache: 'no-store' })
         if (res.ok) setData(await res.json())
       } catch { /* ignore */ }
     }
     load()
-    const t = setInterval(load, 30_000)
+    const t = setInterval(load, 10_000)
     return () => clearInterval(t)
   }, [])
 

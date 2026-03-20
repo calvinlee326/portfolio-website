@@ -20,6 +20,7 @@ async function getAccessToken() {
       grant_type: 'refresh_token',
       refresh_token: SPOTIFY_REFRESH_TOKEN,
     }),
+    cache: 'no-store',
   })
 
   if (!res.ok) return null
@@ -34,6 +35,7 @@ export async function GET() {
   try {
     const res = await fetch(NOW_PLAYING_URL, {
       headers: { Authorization: `Bearer ${token}` },
+      cache: 'no-store',
     })
 
     // 204 = nothing playing, 200 = playing
