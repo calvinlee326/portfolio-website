@@ -1,16 +1,48 @@
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
+import { rateLimit } from '@/lib/rate-limit'
+
+function stripHtml(str: string) {
+  return str.replace(/<[^>]*>/g, '').trim()
+}
 
 const ContactSchema = z.object({
-  name: z.string().min(1).max(200),
+  name: z.string().min(1).max(200).transform(stripHtml),
   email: z.string().email().max(320),
-  message: z.string().min(1).max(5000),
+  message: z.string().min(1).max(5000).transform(stripHtml),
+  // Honeypot — must be empty; bots fill it in automatically
+  website: z.string().max(0, 'Bot detected').optional(),
 })
 
 export async function POST(req: Request) {
+  // Rate limit: 5 submissions per IP per minute
+  const ip =
+    req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? '127.0.0.1'
+  if (!rateLimit(ip, 5, 60_000)) {
+    return NextResponse.json(
+      { ok: false, error: 'Too many requests. Please wait a moment.' },
+      { status: 429 }
+    )
+  }
+
   try {
     const json = await req.json()
-    const { name, email, message } = ContactSchema.parse(json)
+    const parsed = ContactSchema.safeParse(json)
+
+    if (!parsed.success) {
+      // Return generic error — don't reveal honeypot logic
+      return NextResponse.json(
+        { ok: false, error: 'Invalid request.' },
+        { status: 400 }
+      )
+    }
+
+    const { name, email, message, website } = parsed.data
+
+    // Honeypot check — silently reject bots (return 200 to not tip them off)
+    if (website) {
+      return NextResponse.json({ ok: true })
+    }
 
     const RESEND_API_KEY = process.env.RESEND_API_KEY
     const TO_EMAIL = process.env.CONTACT_TO_EMAIL || 'chunchenglee@outlook.com'
@@ -31,7 +63,7 @@ export async function POST(req: Request) {
     const r = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${RESEND_API_KEY}`,
+        Authorization: `Bearer ${RESEND_API_KEY}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(payload),
@@ -44,11 +76,6 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ ok: true })
   } catch (e: any) {
-    if (e?.name === 'ZodError') {
-      return NextResponse.json({ ok: false, error: e.errors }, { status: 400 })
-    }
     return NextResponse.json({ ok: false, error: 'Unexpected error' }, { status: 500 })
   }
 }
-
-

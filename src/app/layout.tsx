@@ -1,4 +1,7 @@
 import type { Metadata } from 'next'
+import { Analytics } from '@vercel/analytics/react'
+import { Providers } from '@/components/Providers'
+import { CommandPalette } from '@/components/CommandPalette'
 import './globals.css'
 
 export const metadata: Metadata = {
@@ -8,8 +11,14 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className="scroll-smooth">
-      <body className="min-h-screen bg-slate-950 text-slate-100">{children}</body>
+    <html lang="en" className="scroll-smooth" suppressHydrationWarning>
+      <body className="min-h-screen bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100">
+        <Providers>
+          <CommandPalette />
+          {children}
+        </Providers>
+        <Analytics />
+      </body>
     </html>
   )
 }

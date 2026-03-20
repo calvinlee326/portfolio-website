@@ -2,7 +2,15 @@ import * as React from 'react'
 import { cn } from './utils'
 
 export function Card({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
-  return <div className={cn('rounded-2xl border border-white/10 bg-white/5', className)} {...props} />
+  return (
+    <div
+      className={cn(
+        'rounded-2xl border border-slate-200 bg-white dark:border-white/10 dark:bg-white/5',
+        className
+      )}
+      {...props}
+    />
+  )
 }
 export function CardHeader({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
   return <div className={cn('p-4', className)} {...props} />

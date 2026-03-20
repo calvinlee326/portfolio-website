@@ -6,6 +6,7 @@ export default {
     './src/components/**/*.{ts,tsx}',
     './src/app/**/*.{ts,tsx}',
   ],
+  darkMode: 'class',
   theme: { extend: {} },
   plugins: [],
 } satisfies Config
