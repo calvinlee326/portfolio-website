@@ -1,11 +1,12 @@
 'use client'
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, useMemo } from 'react'
 import { Command } from 'cmdk'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Zap, Code2, FileText, Mail, LucideGithub, LucideLinkedin,
   LucideInstagram, ExternalLink, Copy, Check,
 } from 'lucide-react'
+import { useCommandPalette } from './CommandPaletteContext'
 
 const GITHUB = 'https://github.com/calvinlee326'
 const LINKEDIN = 'https://www.linkedin.com/in/chunchenglee326/'
@@ -19,6 +20,7 @@ interface Item {
   onSelect: () => void
 }
 
+// Static items — defined outside the component so they are not recreated on each render
 const NAV_ITEMS: Item[] = [
   { id: 'skills', label: 'Go to Skills', icon: <Zap className="h-4 w-4" />, onSelect: () => document.getElementById('skills')?.scrollIntoView({ behavior: 'smooth' }) },
   { id: 'projects', label: 'Go to Projects', icon: <Code2 className="h-4 w-4" />, onSelect: () => document.getElementById('projects')?.scrollIntoView({ behavior: 'smooth' }) },
@@ -34,10 +36,10 @@ const LINK_ITEMS: Item[] = [
 ]
 
 export function CommandPalette() {
-  const [open, setOpen] = useState(false)
+  const { open, setOpen } = useCommandPalette()
   const [copied, setCopied] = useState(false)
 
-  const toggle = useCallback(() => setOpen((v) => !v), [])
+  const toggle = useCallback(() => setOpen(!open), [open, setOpen])
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
@@ -50,7 +52,8 @@ export function CommandPalette() {
     return () => window.removeEventListener('keydown', handler)
   }, [toggle])
 
-  const ACTION_ITEMS: Item[] = [
+  // ACTION_ITEMS depends on `copied` state, so built with useMemo
+  const ACTION_ITEMS: Item[] = useMemo(() => [
     {
       id: 'copy-email',
       label: 'Copy Email Address',
@@ -67,7 +70,7 @@ export function CommandPalette() {
       icon: <Mail className="h-4 w-4" />,
       onSelect: () => { document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' }); setOpen(false) },
     },
-  ]
+  ], [copied, setOpen])
 
   function runAndClose(fn: () => void) {
     fn()

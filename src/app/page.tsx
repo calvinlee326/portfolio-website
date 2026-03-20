@@ -1,5 +1,6 @@
 'use client'
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
+import { useCommandPalette } from '@/components/CommandPaletteContext'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -54,13 +55,30 @@ const LIVE_DEMOS: Record<string, string> = {
   'palm-reading-app': 'https://palm-reading-app-iota.vercel.app',
 }
 
+// Module-level constant — never changes so no need for useMemo
+const ROLES = ['Software Engineer', 'Backend Developer', 'Quality Assurance', 'AI Enthusiast']
+
+interface GitHubRepo {
+  id: number
+  name: string
+  description: string | null
+  html_url: string
+  stargazers_count: number
+  forks_count: number
+  language: string | null
+  pushed_at: string
+}
+
 function toDrivePreview(url: string) {
   try {
     const u = new URL(url)
     const parts = u.pathname.split('/')
     const fileId = parts.find((p) => p && p.length > 20)
     return fileId ? `https://drive.google.com/file/d/${fileId}/preview` : url
-  } catch { return url }
+  } catch (e) {
+    console.error('[toDrivePreview] Failed to parse URL:', e)
+    return url
+  }
 }
 
 function useTypewriter(words: string[], speed = 90, pause = 1300) {
@@ -106,8 +124,7 @@ function FadeIn({ children, delay = 0, className = '' }: { children: React.React
 }
 
 export default function Page() {
-  const roles = useMemo(() => ['Software Engineer', 'Backend Developer', 'Quality Assurance', 'AI Enthusiast'], [])
-  const typed = useTypewriter(roles)
+  const typed = useTypewriter(ROLES)
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-50 via-white to-slate-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 text-slate-900 dark:text-white">
       <SiteNav />
@@ -126,6 +143,7 @@ export default function Page() {
 // ── NAV ─────────────────────────────────────────────────────────────────────
 function SiteNav() {
   const [open, setOpen] = useState(false)
+  const { setOpen: openPalette } = useCommandPalette()
   const links = [
     { href: '#skills', label: 'Skills' },
     { href: '#projects', label: 'Projects' },
@@ -148,7 +166,7 @@ function SiteNav() {
         <div className="flex items-center gap-1">
           {/* Cmd+K hint */}
           <button
-            onClick={() => window.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', metaKey: true, bubbles: true }))}
+            onClick={() => openPalette(true)}
             className="hidden md:flex items-center gap-1.5 text-xs text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 transition px-2 py-1 rounded-lg hover:bg-slate-100 dark:hover:bg-white/5"
             aria-label="Open command palette"
           >
@@ -264,9 +282,24 @@ function SpotifyWidget() {
         if (res.ok) setData(await res.json())
       } catch { /* ignore */ }
     }
+
     load()
-    const t = setInterval(load, 60_000)
-    return () => clearInterval(t)
+    let intervalId = setInterval(load, 60_000)
+
+    function handleVisibilityChange() {
+      if (document.hidden) {
+        clearInterval(intervalId)
+      } else {
+        load()
+        intervalId = setInterval(load, 60_000)
+      }
+    }
+
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+    return () => {
+      clearInterval(intervalId)
+      document.removeEventListener('visibilitychange', handleVisibilityChange)
+    }
   }, [])
 
   if (!data) return null
@@ -377,7 +410,7 @@ function Projects() {
 }
 
 function ProjectCarousel() {
-  const [repos, setRepos] = useState<any[]>([])
+  const [repos, setRepos] = useState<GitHubRepo[]>([])
   const [loading, setLoading] = useState(true)
   const [err, setErr] = useState<string | null>(null)
   const [page, setPage] = useState(0)
@@ -421,7 +454,7 @@ function ProjectCarousel() {
   return (
     <div onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)}>
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {visible.map((r: any, i: number) => (
+        {visible.map((r, i) => (
           <motion.div
             key={`${page}-${r.id}`}
             initial={{ opacity: 0, y: 20 }}
@@ -568,7 +601,9 @@ function Contact() {
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault()
-    const fd = new FormData(formRef!.current as HTMLFormElement)
+    const form = formRef.current
+    if (!form) return
+    const fd = new FormData(form)
     setSending(true)
     setStatus('idle')
     try {
@@ -654,6 +689,7 @@ function Contact() {
 // ── FOOTER ───────────────────────────────────────────────────────────────────
 function Footer() {
   const [views, setViews] = useState<number | null>(null)
+  const { setOpen: openPalette } = useCommandPalette()
 
   useEffect(() => {
     async function track() {
@@ -685,7 +721,7 @@ function Footer() {
         )}
         <span>·</span>
         <button
-          onClick={() => window.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', metaKey: true, bubbles: true }))}
+          onClick={() => openPalette(true)}
           className="hover:text-slate-500 dark:hover:text-slate-400 transition"
         >
           Press <kbd className="font-sans">⌘K</kbd> to navigate

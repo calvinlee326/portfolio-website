@@ -2,6 +2,17 @@ import { NextResponse } from 'next/server'
 
 const GITHUB_USER = 'calvinlee326'
 
+interface GitHubRepo {
+  id: number
+  name: string
+  description: string | null
+  html_url: string
+  stargazers_count: number
+  forks_count: number
+  language: string | null
+  pushed_at: string
+}
+
 // Cache this response for 1 hour — avoids GitHub rate limits and speeds up page load
 export const revalidate = 3600
 
@@ -25,11 +36,11 @@ export async function GET() {
       return NextResponse.json({ error: 'GitHub API error' }, { status: 502 })
     }
 
-    const repos = await r.json()
-    const filtered = (repos as any[])
-      .filter((x) => !x.fork)
+    const repos: GitHubRepo[] = await r.json()
+    const filtered = repos
+      .filter((x) => !(x as GitHubRepo & { fork: boolean }).fork)
       .slice(0, 9)
-      .map(({ id, name, description, html_url, stargazers_count, forks_count, language, pushed_at }) => ({
+      .map(({ id, name, description, html_url, stargazers_count, forks_count, language, pushed_at }): GitHubRepo => ({
         id, name, description, html_url, stargazers_count, forks_count, language, pushed_at,
       }))
 
