@@ -265,7 +265,7 @@ function SpotifyWidget() {
       } catch { /* ignore */ }
     }
     load()
-    const t = setInterval(load, 10_000)
+    const t = setInterval(load, 60_000)
     return () => clearInterval(t)
   }, [])
 
