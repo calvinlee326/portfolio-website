@@ -11,13 +11,23 @@ function getRedis() {
   })
 }
 
-// GET — increment visitor count and return the new total
+// GET — read current count without incrementing
 export async function GET() {
   const redis = getRedis()
-  if (!redis) {
-    // Gracefully return null when Redis is not configured
+  if (!redis) return NextResponse.json({ count: null })
+
+  try {
+    const count = await redis.get<number>('portfolio:views') ?? 0
+    return NextResponse.json({ count })
+  } catch {
     return NextResponse.json({ count: null })
   }
+}
+
+// POST — increment count (called once per session from the client)
+export async function POST() {
+  const redis = getRedis()
+  if (!redis) return NextResponse.json({ count: null })
 
   try {
     const count = await redis.incr('portfolio:views')

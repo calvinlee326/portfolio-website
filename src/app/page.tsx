@@ -656,10 +656,22 @@ function Footer() {
   const [views, setViews] = useState<number | null>(null)
 
   useEffect(() => {
-    fetch('/api/views')
-      .then((r) => r.json())
-      .then((d) => { if (d.count !== null) setViews(d.count) })
-      .catch(() => {})
+    async function track() {
+      try {
+        // Only increment once per browser session
+        if (!sessionStorage.getItem('viewed')) {
+          sessionStorage.setItem('viewed', '1')
+          const r = await fetch('/api/views', { method: 'POST' })
+          const d = await r.json()
+          if (d.count !== null) setViews(d.count)
+        } else {
+          const r = await fetch('/api/views')
+          const d = await r.json()
+          if (d.count !== null) setViews(d.count)
+        }
+      } catch {}
+    }
+    track()
   }, [])
 
   return (
