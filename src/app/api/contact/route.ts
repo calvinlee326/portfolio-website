@@ -1,15 +1,16 @@
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
 import { Redis } from '@upstash/redis'
+import { randomUUID } from 'crypto'
 
 function stripHtml(str: string) {
   return str.replace(/<[^>]*>/g, '').trim()
 }
 
 const ContactSchema = z.object({
-  name: z.string().min(1).max(200).transform(stripHtml),
+  name: z.string().max(200).transform(stripHtml).pipe(z.string().min(1).max(200)),
   email: z.string().email().max(320),
-  message: z.string().min(1).max(5000).transform(stripHtml),
+  message: z.string().max(5000).transform(stripHtml).pipe(z.string().min(1).max(5000)),
   // Honeypot — must be empty; bots fill it in automatically
   website: z.string().max(0, 'Bot detected').optional(),
 })
@@ -38,7 +39,7 @@ async function rateLimit(ip: string, limit = 5, windowSecs = 60): Promise<boolea
 
   const pipe = redis.pipeline()
   pipe.zremrangebyscore(key, 0, now - windowMs)
-  pipe.zadd(key, { score: now, member: `${now}` })
+  pipe.zadd(key, { score: now, member: `${now}:${randomUUID()}` })
   pipe.zcard(key)
   pipe.expire(key, windowSecs)
   const results = await pipe.exec()

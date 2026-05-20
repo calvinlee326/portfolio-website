@@ -422,7 +422,7 @@ function Skills() {
 
         {totalPages > 1 && (
           <div className="flex items-center justify-center gap-4 mt-6">
-            <button onClick={prev} className="p-1.5 rounded-full hover:bg-slate-100 dark:hover:bg-white/10 text-slate-400 hover:text-slate-700 dark:hover:text-white transition">
+            <button aria-label="Previous skill page" onClick={prev} className="p-1.5 rounded-full hover:bg-slate-100 dark:hover:bg-white/10 text-slate-400 hover:text-slate-700 dark:hover:text-white transition">
               <ChevronLeft className="h-5 w-5" />
             </button>
             <div className="flex gap-2">
@@ -435,7 +435,7 @@ function Skills() {
                 />
               ))}
             </div>
-            <button onClick={next} className="p-1.5 rounded-full hover:bg-slate-100 dark:hover:bg-white/10 text-slate-400 hover:text-slate-700 dark:hover:text-white transition">
+            <button aria-label="Next skill page" onClick={next} className="p-1.5 rounded-full hover:bg-slate-100 dark:hover:bg-white/10 text-slate-400 hover:text-slate-700 dark:hover:text-white transition">
               <ChevronRight className="h-5 w-5" />
             </button>
           </div>
@@ -481,7 +481,8 @@ function ProjectCarousel() {
     async function load() {
       try {
         const r = await fetch('/api/repos')
-        const all = r.ok ? await r.json() : []
+        if (!r.ok) throw new Error('GitHub API error')
+        const all = await r.json()
         setRepos(Array.isArray(all) ? all : [])
       } catch {
         setErr('Could not load GitHub repos.')
@@ -507,6 +508,7 @@ function ProjectCarousel() {
     </div>
   )
   if (err) return <p className="text-sm text-rose-500">{err}</p>
+  if (repos.length === 0) return <p className="text-sm text-slate-500 dark:text-slate-400">No GitHub projects available right now.</p>
 
   const visible = repos.slice(page * PER_PAGE, page * PER_PAGE + PER_PAGE)
 
@@ -570,7 +572,7 @@ function ProjectCarousel() {
 
       {totalPages > 1 && (
         <div className="flex items-center justify-center gap-4 mt-6">
-          <button onClick={prev} className="p-1.5 rounded-full hover:bg-slate-100 dark:hover:bg-white/10 text-slate-400 hover:text-slate-700 dark:hover:text-white transition">
+          <button aria-label="Previous project page" onClick={prev} className="p-1.5 rounded-full hover:bg-slate-100 dark:hover:bg-white/10 text-slate-400 hover:text-slate-700 dark:hover:text-white transition">
             <ChevronLeft className="h-5 w-5" />
           </button>
           <div className="flex gap-2">
@@ -579,10 +581,11 @@ function ProjectCarousel() {
                 key={i}
                 onClick={() => setPage(i)}
                 className={`h-2 rounded-full transition-all duration-300 ${i === page ? 'w-6 bg-blue-500' : 'w-2 bg-slate-300 dark:bg-white/20 hover:bg-slate-400 dark:hover:bg-white/40'}`}
+                aria-label={`Go to project page ${i + 1}`}
               />
             ))}
           </div>
-          <button onClick={next} className="p-1.5 rounded-full hover:bg-slate-100 dark:hover:bg-white/10 text-slate-400 hover:text-slate-700 dark:hover:text-white transition">
+          <button aria-label="Next project page" onClick={next} className="p-1.5 rounded-full hover:bg-slate-100 dark:hover:bg-white/10 text-slate-400 hover:text-slate-700 dark:hover:text-white transition">
             <ChevronRight className="h-5 w-5" />
           </button>
         </div>
@@ -635,7 +638,7 @@ function Resume() {
               </div>
               <div className="mt-6 pt-5 border-t border-slate-100 dark:border-white/10 flex flex-wrap gap-2">
                 <a href={RESUME_URL} target="_blank" rel="noreferrer">
-                  <Button className="bg-blue-600 hover:bg-blue-500 text-sm"><FileText className="mr-2 h-4 w-4" />Download PDF</Button>
+                  <Button className="bg-blue-600 hover:bg-blue-500 text-sm"><FileText className="mr-2 h-4 w-4" />View Resume</Button>
                 </a>
                 <a href={`https://github.com/${GITHUB_USER}`} target="_blank" rel="noreferrer">
                   <Button variant="secondary" className="bg-slate-100 hover:bg-slate-200 dark:bg-white/10 dark:text-white dark:hover:bg-white/20 text-sm"><LucideGithub className="mr-2 h-4 w-4" />GitHub</Button>

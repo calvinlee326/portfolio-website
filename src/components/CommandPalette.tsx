@@ -13,6 +13,10 @@ const LINKEDIN = 'https://www.linkedin.com/in/chunchenglee326/'
 const RESUME_URL = 'https://drive.google.com/file/d/1IdgzCeSSrZgQ_iYf0er2amxe0KF3zIhl/view?usp=sharing'
 const EMAIL = 'chunchenglee@outlook.com'
 
+function openExternal(url: string) {
+  window.open(url, '_blank', 'noopener,noreferrer')
+}
+
 interface Item {
   id: string
   label: string
@@ -29,10 +33,10 @@ const NAV_ITEMS: Item[] = [
 ]
 
 const LINK_ITEMS: Item[] = [
-  { id: 'github', label: 'Open GitHub', icon: <LucideGithub className="h-4 w-4" />, onSelect: () => window.open(GITHUB, '_blank') },
-  { id: 'linkedin', label: 'Open LinkedIn', icon: <LucideLinkedin className="h-4 w-4" />, onSelect: () => window.open(LINKEDIN, '_blank') },
-  { id: 'instagram', label: 'Open Instagram', icon: <LucideInstagram className="h-4 w-4" />, onSelect: () => window.open('https://instagram.com/calvinlee326', '_blank') },
-  { id: 'resume-pdf', label: 'View Resume PDF', icon: <ExternalLink className="h-4 w-4" />, onSelect: () => window.open(RESUME_URL, '_blank') },
+  { id: 'github', label: 'Open GitHub', icon: <LucideGithub className="h-4 w-4" />, onSelect: () => openExternal(GITHUB) },
+  { id: 'linkedin', label: 'Open LinkedIn', icon: <LucideLinkedin className="h-4 w-4" />, onSelect: () => openExternal(LINKEDIN) },
+  { id: 'instagram', label: 'Open Instagram', icon: <LucideInstagram className="h-4 w-4" />, onSelect: () => openExternal('https://instagram.com/calvinlee326') },
+  { id: 'resume-pdf', label: 'View Resume PDF', icon: <ExternalLink className="h-4 w-4" />, onSelect: () => openExternal(RESUME_URL) },
 ]
 
 export function CommandPalette() {
@@ -47,10 +51,13 @@ export function CommandPalette() {
         e.preventDefault()
         toggle()
       }
+      if (e.key === 'Escape') {
+        setOpen(false)
+      }
     }
     window.addEventListener('keydown', handler)
     return () => window.removeEventListener('keydown', handler)
-  }, [toggle])
+  }, [setOpen, toggle])
 
   // ACTION_ITEMS depends on `copied` state, so built with useMemo
   const ACTION_ITEMS: Item[] = useMemo(() => [
