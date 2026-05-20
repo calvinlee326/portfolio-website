@@ -19,15 +19,22 @@ const LOCATION = 'Los Angeles, CA'
 const LANGUAGES = ['English', 'Mandarin', 'Taiwanese']
 const LINKEDIN = 'https://www.linkedin.com/in/chunchenglee326/'
 const GITHUB_USER = 'calvinlee326'
-const RESUME_URL = 'https://drive.google.com/file/d/1BSBaHCnNDVzVW-mEGur0F76NA1u1KCEC/view?usp=sharing'
+const RESUME_URL = 'https://drive.google.com/file/d/1IdgzCeSSrZgQ_iYf0er2amxe0KF3zIhl/view?usp=sharing'
 const EMAIL = 'chunchenglee@outlook.com'
 const BIO = 'Backend-focused SWE who builds APIs, AI integrations, and payment systems. Passionate about clean architecture and shipping products that work. Open to full-time backend or full-stack roles.'
 
 const SKILLS: Record<string, string[]> = {
-  'Languages':   ['Python', 'TypeScript', 'JavaScript', 'SQL'],
-  'Frameworks':  ['Django', 'FastAPI', 'Next.js', 'React'],
-  'Tools':       ['PostgreSQL', 'Docker', 'Git', 'REST APIs', 'Stripe'],
-  'AI / ML':     ['GPT-4o Vision', 'OpenAI API', 'Prompt Engineering', 'LangChain'],
+  'Languages': ['Python', 'JavaScript', 'TypeScript', 'SQL', 'Java', 'Kotlin'],
+  'Backend & APIs': ['Django', 'Django REST Framework', 'Flask', 'Node.js', 'Express.js', 'REST API Design', 'Webhook Handling', 'JWT Authentication', 'Google OAuth'],
+  'Frontend': ['React', 'HTML/CSS', 'Bootstrap', 'Chrome Extension APIs (MV3)'],
+  'AI / LLM Integration': ['Claude Code', 'Cursor', 'AI-assisted IDE', 'GitHub Copilot', 'LLM-augmented development'],
+  'Databases & Caching': ['PostgreSQL', 'MySQL', 'MongoDB', 'Redis', 'Database Design', 'Query Optimization'],
+  'DevOps & Cloud': ['GitHub Actions (CI/CD)', 'Heroku', 'Linux', 'Git', 'Docker'],
+  'Payments': ['Stripe API', 'Subscription Billing', 'Invoice Automation', 'Webhook Event Processing'],
+  'Testing & QA': ['Unit Testing', 'Integration Testing', 'Test Automation', 'Test Case Design', 'Jira', 'Defect Tracking'],
+  'AI Dev Tools': ['Claude Code', 'Cursor (AI-assisted IDE)', 'GitHub Copilot', 'Prompt Engineering', 'LLM-augmented development'],
+  'Practices': ['Agile/Scrum', 'Code Review', 'API Security', 'Technical Documentation', 'Cross-Functional Collaboration'],
+  'Currently Learning': ['AWS (EC2, S3, RDS)', 'System Design'],
 }
 
 const LANG_COLORS: Record<string, string> = {
@@ -355,32 +362,84 @@ function Socials({ compact = false }: { compact?: boolean }) {
 
 // ── SKILLS ───────────────────────────────────────────────────────────────────
 function Skills() {
+  const entries = Object.entries(SKILLS)
+  const [page, setPage] = useState(0)
+  const [paused, setPaused] = useState(false)
+  const PER_PAGE = 3
+  const totalPages = Math.ceil(entries.length / PER_PAGE)
+  const visible = entries.slice(page * PER_PAGE, page * PER_PAGE + PER_PAGE)
+
+  const next = useCallback(() => setPage((p) => (p + 1) % totalPages), [totalPages])
+  const prev = useCallback(() => setPage((p) => (p - 1 + totalPages) % totalPages), [totalPages])
+
+  useEffect(() => {
+    if (paused || totalPages <= 1) return
+    const t = setInterval(next, 3500)
+    return () => clearInterval(t)
+  }, [paused, next, totalPages])
+
   return (
     <section id="skills" className="py-12">
       <FadeIn>
-        <div className="flex items-center gap-3 mb-6">
-          <Zap className="h-5 w-5 text-blue-500 dark:text-blue-400" />
-          <h2 className="text-2xl font-bold">Skills</h2>
+        <div className="flex items-end justify-between mb-6">
+          <div className="flex items-center gap-3">
+            <Zap className="h-5 w-5 text-blue-500 dark:text-blue-400" />
+            <h2 className="text-2xl font-bold">Skills</h2>
+          </div>
+          {totalPages > 1 && (
+            <span className="text-sm text-slate-500 dark:text-slate-400">
+              {page + 1} / {totalPages}
+            </span>
+          )}
         </div>
       </FadeIn>
-      <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {Object.entries(SKILLS).map(([category, items], ci) => (
-          <FadeIn key={category} delay={ci * 0.08}>
-            <div className="rounded-2xl border border-slate-200 bg-slate-50 dark:border-white/10 dark:bg-white/5 p-4 h-full hover:border-blue-400/50 hover:bg-slate-100 dark:hover:bg-white/10 transition-all duration-300">
-              <p className="text-xs font-semibold uppercase tracking-widest text-blue-500 dark:text-blue-400 mb-3">{category}</p>
-              <div className="flex flex-wrap gap-2">
-                {items.map((skill) => (
-                  <span
-                    key={skill}
-                    className="px-2.5 py-1 rounded-full text-xs bg-slate-200 dark:bg-white/10 text-slate-700 dark:text-slate-200 hover:bg-blue-100 dark:hover:bg-blue-500/20 hover:text-blue-700 dark:hover:text-blue-200 transition-colors cursor-default"
-                  >
-                    {skill}
-                  </span>
-                ))}
+      <div onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)}>
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {visible.map(([category, items], ci) => (
+            <motion.div
+              key={`${page}-${category}`}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.35, delay: ci * 0.08 }}
+              className="h-full"
+            >
+              <div className="rounded-2xl border border-slate-200 bg-slate-50 dark:border-white/10 dark:bg-white/5 p-4 h-full hover:border-blue-400/50 hover:bg-slate-100 dark:hover:bg-white/10 transition-all duration-300">
+                <p className="text-xs font-semibold uppercase tracking-widest text-blue-500 dark:text-blue-400 mb-3">{category}</p>
+                <div className="flex flex-wrap gap-2">
+                  {items.map((skill) => (
+                    <span
+                      key={skill}
+                      className="px-2.5 py-1 rounded-full text-xs bg-slate-200 dark:bg-white/10 text-slate-700 dark:text-slate-200 hover:bg-blue-100 dark:hover:bg-blue-500/20 hover:text-blue-700 dark:hover:text-blue-200 transition-colors cursor-default"
+                    >
+                      {skill}
+                    </span>
+                  ))}
+                </div>
               </div>
+            </motion.div>
+          ))}
+        </div>
+
+        {totalPages > 1 && (
+          <div className="flex items-center justify-center gap-4 mt-6">
+            <button onClick={prev} className="p-1.5 rounded-full hover:bg-slate-100 dark:hover:bg-white/10 text-slate-400 hover:text-slate-700 dark:hover:text-white transition">
+              <ChevronLeft className="h-5 w-5" />
+            </button>
+            <div className="flex gap-2">
+              {Array.from({ length: totalPages }).map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() => setPage(i)}
+                  className={`h-2 rounded-full transition-all ${i === page ? 'w-6 bg-blue-500' : 'w-2 bg-slate-300 dark:bg-white/20 hover:bg-slate-400 dark:hover:bg-white/40'}`}
+                  aria-label={`Go to skill page ${i + 1}`}
+                />
+              ))}
             </div>
-          </FadeIn>
-        ))}
+            <button onClick={next} className="p-1.5 rounded-full hover:bg-slate-100 dark:hover:bg-white/10 text-slate-400 hover:text-slate-700 dark:hover:text-white transition">
+              <ChevronRight className="h-5 w-5" />
+            </button>
+          </div>
+        )}
       </div>
     </section>
   )

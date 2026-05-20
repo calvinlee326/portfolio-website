@@ -10,7 +10,7 @@ import { useCommandPalette } from './CommandPaletteContext'
 
 const GITHUB = 'https://github.com/calvinlee326'
 const LINKEDIN = 'https://www.linkedin.com/in/chunchenglee326/'
-const RESUME_URL = 'https://drive.google.com/file/d/1BSBaHCnNDVzVW-mEGur0F76NA1u1KCEC/view?usp=sharing'
+const RESUME_URL = 'https://drive.google.com/file/d/1IdgzCeSSrZgQ_iYf0er2amxe0KF3zIhl/view?usp=sharing'
 const EMAIL = 'chunchenglee@outlook.com'
 
 interface Item {
