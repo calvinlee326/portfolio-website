@@ -1,5 +1,5 @@
 'use client'
-import React, { useCallback, useEffect, useRef, useState } from 'react'
+import React, { useEffect, useRef, useState, useSyncExternalStore } from 'react'
 import { useCommandPalette } from '@/components/CommandPaletteContext'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -11,7 +11,7 @@ import {
   MapPin, Languages, ExternalLink, ArrowRight, Star, Code2, Loader2,
   ChevronLeft, ChevronRight, GitFork, Menu, X, Zap, Globe, Music2,
 } from 'lucide-react'
-import { motion, AnimatePresence, useInView } from 'framer-motion'
+import { motion, AnimatePresence, useInView, useScroll, useTransform, type MotionValue } from 'framer-motion'
 
 // ==== CONFIG ================================================================
 const NAME = 'Chun-Cheng Lee'
@@ -65,6 +65,30 @@ const LIVE_DEMOS: Record<string, string> = {
 // Module-level constant — never changes so no need for useMemo
 const ROLES = ['Software Engineer', 'Backend Developer', 'Quality Assurance', 'AI Enthusiast']
 
+const SHOWCASE = [
+  {
+    num: '01',
+    title: 'Backend & APIs',
+    desc: 'Django, FastAPI, and Node services with clean REST design, JWT auth, and PostgreSQL behind every endpoint.',
+    tags: ['Django', 'FastAPI', 'PostgreSQL', 'REST'],
+    gradient: 'from-blue-500 to-cyan-400',
+  },
+  {
+    num: '02',
+    title: 'AI Integration',
+    desc: 'GPT-4o Vision apps, RAG chatbots with multi-turn memory, and LLM-augmented workflows shipped to production.',
+    tags: ['GPT-4o', 'RAG', 'LangChain', 'Claude API'],
+    gradient: 'from-cyan-400 to-emerald-400',
+  },
+  {
+    num: '03',
+    title: 'Payments & QA',
+    desc: 'Stripe subscription billing, webhook event processing, and end-to-end test automation that keeps releases safe.',
+    tags: ['Stripe', 'Webhooks', 'CI/CD', 'Test Automation'],
+    gradient: 'from-emerald-400 to-blue-500',
+  },
+]
+
 interface GitHubRepo {
   id: number
   name: string
@@ -114,15 +138,42 @@ function useTypewriter(words: string[], speed = 90, pause = 1300) {
   return display
 }
 
+// Hydration-safe reduced-motion check: the server snapshot is false so SSR and
+// hydration match, then React re-renders with the real media query value
+// (framer-motion's useReducedMotion reads it during the first render, which
+// causes a hydration mismatch when reduce-motion is enabled).
+const REDUCED_MOTION_QUERY = '(prefers-reduced-motion: reduce)'
+
+function subscribeReducedMotion(onChange: () => void) {
+  const mq = window.matchMedia(REDUCED_MOTION_QUERY)
+  mq.addEventListener('change', onChange)
+  return () => mq.removeEventListener('change', onChange)
+}
+
+function usePrefersReducedMotion() {
+  return useSyncExternalStore(
+    subscribeReducedMotion,
+    () => window.matchMedia(REDUCED_MOTION_QUERY).matches,
+    () => false,
+  )
+}
+
 function FadeIn({ children, delay = 0, className = '' }: { children: React.ReactNode; delay?: number; className?: string }) {
   const ref = useRef(null)
-  const inView = useInView(ref, { once: true, margin: '-60px' })
+  const inView = useInView(ref, { once: true, amount: 0.15 })
   return (
     <motion.div
       ref={ref}
-      initial={{ opacity: 0, y: 24 }}
-      animate={inView ? { opacity: 1, y: 0 } : {}}
-      transition={{ duration: 0.5, delay, ease: 'easeOut' }}
+      initial={{ opacity: 0, y: 32, scale: 0.97, filter: 'blur(4px)' }}
+      animate={inView ? { opacity: 1, y: 0, scale: 1, filter: 'blur(0px)' } : {}}
+      transition={{
+        duration: 0.5,
+        delay,
+        // Spring overshoot on transform, plain ease on opacity/blur
+        ease: [0.34, 1.56, 0.64, 1],
+        opacity: { duration: 0.5, delay, ease: 'easeOut' },
+        filter: { duration: 0.5, delay, ease: 'easeOut' },
+      }}
       className={className}
     >
       {children}
@@ -133,10 +184,17 @@ function FadeIn({ children, delay = 0, className = '' }: { children: React.React
 export default function Page() {
   const typed = useTypewriter(ROLES)
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 via-white to-slate-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 text-slate-900 dark:text-white">
+    <div className="relative isolate min-h-screen bg-gradient-to-b from-slate-50 via-white to-slate-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 text-slate-900 dark:text-white">
+      {/* Floating background orbs — CSS keyframes only */}
+      <div aria-hidden className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
+        <div className="orb orb-1" />
+        <div className="orb orb-2" />
+        <div className="orb orb-3" />
+      </div>
       <SiteNav />
       <main className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
         <Hero typed={typed} />
+        <StickyShowcase />
         <Skills />
         <Projects />
         <Resume />
@@ -148,9 +206,16 @@ export default function Page() {
 }
 
 // ── NAV ─────────────────────────────────────────────────────────────────────
+function subscribeScroll(onChange: () => void) {
+  window.addEventListener('scroll', onChange, { passive: true })
+  return () => window.removeEventListener('scroll', onChange)
+}
+
 function SiteNav() {
   const [open, setOpen] = useState(false)
   const { setOpen: openPalette } = useCommandPalette()
+  // Glass effect strengthens and the border appears once the page scrolls
+  const scrolled = useSyncExternalStore(subscribeScroll, () => window.scrollY > 16, () => false)
   const links = [
     { href: '#skills', label: 'Skills' },
     { href: '#projects', label: 'Projects' },
@@ -158,7 +223,13 @@ function SiteNav() {
     { href: '#contact', label: 'Contact' },
   ]
   return (
-    <header className="sticky top-0 z-40 backdrop-blur supports-[backdrop-filter]:bg-white/90 dark:supports-[backdrop-filter]:bg-slate-900/75 border-b border-slate-200 dark:border-white/10">
+    <header
+      className={`sticky top-0 z-40 backdrop-blur border-b transition-[background-color,border-color,box-shadow] duration-300 ${
+        scrolled
+          ? 'supports-[backdrop-filter]:bg-white/90 dark:supports-[backdrop-filter]:bg-slate-900/80 border-slate-200 dark:border-white/10 shadow-sm'
+          : 'supports-[backdrop-filter]:bg-white/60 dark:supports-[backdrop-filter]:bg-slate-900/40 border-transparent'
+      }`}
+    >
       <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 h-14 flex items-center justify-between">
         <a href="#top" className="font-black tracking-tight text-xl">
           <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-emerald-500 dark:from-blue-400 dark:to-emerald-300">Chun‑Cheng</span>
@@ -215,8 +286,21 @@ function SiteNav() {
 
 // ── HERO ────────────────────────────────────────────────────────────────────
 function Hero({ typed }: { typed: string }) {
+  const ref = useRef<HTMLElement | null>(null)
+  const reduceMotion = usePrefersReducedMotion()
+  // Scroll-linked: progress 0 → 1 as the hero scrolls out of the viewport
+  const { scrollYProgress } = useScroll({ target: ref, offset: ['start start', 'end start'] })
+  const scale = useTransform(scrollYProgress, [0, 1], [1, 0.85])
+  const opacity = useTransform(scrollYProgress, [0, 0.9], [1, 0])
+  const y = useTransform(scrollYProgress, [0, 1], [0, -40])
   return (
-    <section id="top" className="pt-16 pb-8 sm:pt-24 sm:pb-10">
+    <section ref={ref} id="top" className="relative pt-16 pb-8 sm:pt-24 sm:pb-10">
+      {/* Aurora blobs driven by CSS animation-timeline: scroll() where supported */}
+      <div aria-hidden className="pointer-events-none absolute inset-0">
+        <div className="scroll-aurora absolute -top-10 left-[15%] h-72 w-72 rounded-full bg-blue-500/20 dark:bg-blue-400/10 blur-3xl" />
+        <div className="scroll-aurora absolute top-24 right-[15%] h-80 w-80 rounded-full bg-emerald-400/20 dark:bg-emerald-300/10 blur-3xl" />
+      </div>
+      <motion.div style={reduceMotion ? undefined : { scale, opacity, y }}>
       <motion.div
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
@@ -272,6 +356,115 @@ function Hero({ typed }: { typed: string }) {
         {/* Spotify Now Playing */}
         <SpotifyWidget />
       </motion.div>
+      </motion.div>
+    </section>
+  )
+}
+
+// ── COUNT-UP ─────────────────────────────────────────────────────────────────
+// Counts from 0 to value over 800ms (ease-out) the first time it enters the viewport
+function CountUp({ value }: { value: number }) {
+  const ref = useRef<HTMLSpanElement | null>(null)
+  const inView = useInView(ref, { once: true })
+  const [display, setDisplay] = useState(0)
+  useEffect(() => {
+    if (!inView) return
+    const start = performance.now()
+    let raf = 0
+    const tick = (now: number) => {
+      const t = Math.min((now - start) / 800, 1)
+      const eased = 1 - Math.pow(1 - t, 3)
+      setDisplay(Math.round(eased * value))
+      if (t < 1) raf = requestAnimationFrame(tick)
+    }
+    raf = requestAnimationFrame(tick)
+    return () => cancelAnimationFrame(raf)
+  }, [inView, value])
+  return <span ref={ref}>{display.toLocaleString()}</span>
+}
+
+// ── STICKY SHOWCASE ──────────────────────────────────────────────────────────
+// Sticky scroll scene: the inner viewport pins while the 300vh section scrolls,
+// and scroll progress drives the panel crossfades.
+function ShowcaseBody({ item }: { item: (typeof SHOWCASE)[number] }) {
+  return (
+    <>
+      <span className={`text-[6rem] sm:text-[10rem] font-black leading-none bg-clip-text text-transparent bg-gradient-to-br ${item.gradient} select-none`}>
+        {item.num}
+      </span>
+      <div>
+        <h3 className="text-3xl sm:text-5xl font-extrabold tracking-tight">{item.title}</h3>
+        <p className="mt-4 max-w-md text-slate-500 dark:text-slate-400 text-sm sm:text-base leading-relaxed">{item.desc}</p>
+        <div className="mt-5 flex flex-wrap gap-2">
+          {item.tags.map((t) => (
+            <span key={t} className="px-2.5 py-1 rounded-full text-xs bg-slate-200 dark:bg-white/10 text-slate-700 dark:text-slate-200">
+              {t}
+            </span>
+          ))}
+        </div>
+      </div>
+    </>
+  )
+}
+
+function ShowcasePanel({ item, index, total, progress }: {
+  item: (typeof SHOWCASE)[number]
+  index: number
+  total: number
+  progress: MotionValue<number>
+}) {
+  const start = index / total
+  const end = (index + 1) / total
+  const fade = 0.18 / total
+  const opacity = useTransform(
+    progress,
+    [start, start + fade, end - fade, end],
+    [index === 0 ? 1 : 0, 1, 1, index === total - 1 ? 1 : 0],
+  )
+  const y = useTransform(
+    progress,
+    [start, start + fade, end - fade, end],
+    [index === 0 ? 0 : 48, 0, 0, index === total - 1 ? 0 : -48],
+  )
+  return (
+    <motion.div style={{ opacity, y }} className="absolute inset-0 grid sm:grid-cols-[auto_1fr] items-center gap-4 sm:gap-12">
+      <ShowcaseBody item={item} />
+    </motion.div>
+  )
+}
+
+function StickyShowcase() {
+  const ref = useRef<HTMLElement | null>(null)
+  const reduceMotion = usePrefersReducedMotion()
+  const { scrollYProgress } = useScroll({ target: ref, offset: ['start start', 'end end'] })
+  const railScaleX = useTransform(scrollYProgress, [0, 1], [0, 1])
+
+  if (reduceMotion) {
+    return (
+      <section aria-label="What I build" className="py-12 space-y-14">
+        <p className="text-xs font-semibold uppercase tracking-[0.25em] text-blue-500 dark:text-blue-400">What I build</p>
+        {SHOWCASE.map((item) => (
+          <div key={item.num} className="grid sm:grid-cols-[auto_1fr] items-center gap-4 sm:gap-12">
+            <ShowcaseBody item={item} />
+          </div>
+        ))}
+      </section>
+    )
+  }
+
+  return (
+    <section ref={ref} aria-label="What I build" className="relative h-[300vh]">
+      <div className="sticky top-0 h-screen flex flex-col justify-center overflow-hidden">
+        <p className="text-xs font-semibold uppercase tracking-[0.25em] text-blue-500 dark:text-blue-400 mb-8">What I build</p>
+        <div className="relative h-[26rem] sm:h-96">
+          {SHOWCASE.map((item, i) => (
+            <ShowcasePanel key={item.num} item={item} index={i} total={SHOWCASE.length} progress={scrollYProgress} />
+          ))}
+        </div>
+        <div className="mt-10 h-1 w-40 rounded-full bg-slate-200 dark:bg-white/10 overflow-hidden">
+          <motion.div style={{ scaleX: railScaleX, transformOrigin: 'left' }} className="h-full w-full bg-gradient-to-r from-blue-500 to-emerald-400" />
+        </div>
+      </div>
     </section>
   )
 }
@@ -369,14 +562,14 @@ function Skills() {
   const totalPages = Math.ceil(entries.length / PER_PAGE)
   const visible = entries.slice(page * PER_PAGE, page * PER_PAGE + PER_PAGE)
 
-  const next = useCallback(() => setPage((p) => (p + 1) % totalPages), [totalPages])
-  const prev = useCallback(() => setPage((p) => (p - 1 + totalPages) % totalPages), [totalPages])
+  const next = () => setPage((p) => (p + 1) % totalPages)
+  const prev = () => setPage((p) => (p - 1 + totalPages) % totalPages)
 
   useEffect(() => {
     if (paused || totalPages <= 1) return
-    const t = setInterval(next, 3500)
+    const t = setInterval(() => setPage((p) => (p + 1) % totalPages), 3500)
     return () => clearInterval(t)
-  }, [paused, next, totalPages])
+  }, [paused, totalPages])
 
   return (
     <section id="skills" className="py-12">
@@ -398,9 +591,9 @@ function Skills() {
           {visible.map(([category, items], ci) => (
             <motion.div
               key={`${page}-${category}`}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.35, delay: ci * 0.08 }}
+              initial={{ opacity: 0, y: 32, scale: 0.97 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              transition={{ duration: 0.5, delay: ci * 0.08, ease: [0.34, 1.56, 0.64, 1], opacity: { duration: 0.5, delay: ci * 0.08, ease: 'easeOut' } }}
               className="h-full"
             >
               <div className="rounded-2xl border border-slate-200 bg-slate-50 dark:border-white/10 dark:bg-white/5 p-4 h-full hover:border-blue-400/50 hover:bg-slate-100 dark:hover:bg-white/10 transition-all duration-300">
@@ -493,14 +686,14 @@ function ProjectCarousel() {
     load()
   }, [])
 
-  const next = useCallback(() => setPage((p) => (p + 1) % totalPages), [totalPages])
-  const prev = useCallback(() => setPage((p) => (p - 1 + totalPages) % totalPages), [totalPages])
+  const next = () => setPage((p) => (p + 1) % totalPages)
+  const prev = () => setPage((p) => (p - 1 + totalPages) % totalPages)
 
   useEffect(() => {
     if (paused || totalPages <= 1) return
-    const t = setInterval(next, 3500)
+    const t = setInterval(() => setPage((p) => (p + 1) % totalPages), 3500)
     return () => clearInterval(t)
-  }, [paused, next, totalPages])
+  }, [paused, totalPages])
 
   if (loading) return (
     <div className="py-16 flex items-center justify-center text-slate-400">
@@ -518,9 +711,9 @@ function ProjectCarousel() {
         {visible.map((r, i) => (
           <motion.div
             key={`${page}-${r.id}`}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.35, delay: i * 0.08 }}
+            initial={{ opacity: 0, y: 32, scale: 0.97 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{ duration: 0.5, delay: i * 0.08, ease: [0.34, 1.56, 0.64, 1], opacity: { duration: 0.5, delay: i * 0.08, ease: 'easeOut' } }}
             className="h-full"
           >
             <Card className="group h-full hover:border-blue-400/40 hover:shadow-xl hover:shadow-blue-500/10 dark:hover:bg-white/[0.07] transition-all duration-300 flex flex-col">
@@ -707,7 +900,7 @@ function Contact() {
                 <AnimatePresence>
                   {status === 'success' && (
                     <motion.p initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="text-sm text-emerald-600 dark:text-emerald-400">
-                      ✓ Message sent! I'll get back to you soon.
+                      ✓ Message sent! I&apos;ll get back to you soon.
                     </motion.p>
                   )}
                   {status === 'error' && (
@@ -779,7 +972,7 @@ function Footer() {
       </p>
       <div className="flex items-center justify-center gap-3 text-xs text-slate-300 dark:text-slate-600">
         {views !== null && (
-          <span>{views.toLocaleString()} visits</span>
+          <span><CountUp value={views} /> visits</span>
         )}
         <span>·</span>
         <button

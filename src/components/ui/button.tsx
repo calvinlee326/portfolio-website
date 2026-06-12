@@ -8,7 +8,7 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
 
 export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant = 'default', size = 'default', ...props }, ref) => {
-    const base = 'inline-flex items-center justify-center rounded-2xl px-3 py-2 text-sm font-medium transition'
+    const base = 'inline-flex items-center justify-center rounded-2xl px-3 py-2 text-sm font-medium transition active:scale-[0.97]'
     const variants: Record<string,string> = {
       default: 'bg-sky-500 hover:bg-sky-600 text-white',
       secondary: 'bg-white/10 hover:bg-white/20 text-white',

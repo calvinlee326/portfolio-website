@@ -11,7 +11,7 @@ export default function NotFound() {
           Page not found
         </h1>
         <p className="text-slate-500 dark:text-slate-400 mb-8 max-w-sm mx-auto">
-          Looks like this page doesn't exist. Head back to the portfolio.
+          Looks like this page doesn&apos;t exist. Head back to the portfolio.
         </p>
         <Link
           href="/"
