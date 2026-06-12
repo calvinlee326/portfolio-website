@@ -386,7 +386,7 @@ function CountUp({ value }: { value: number }) {
 // ── SHOWCASE ─────────────────────────────────────────────────────────────────
 function Showcase() {
   return (
-    <section aria-label="What I build" className="py-12">
+    <section aria-label="What I build" className="py-8">
       <FadeIn>
         <p className="text-xs font-semibold uppercase tracking-[0.25em] text-blue-500 dark:text-blue-400 mb-6">What I build</p>
       </FadeIn>
@@ -518,7 +518,7 @@ function Skills() {
   }, [paused, totalPages])
 
   return (
-    <section id="skills" className="py-12">
+    <section id="skills" className="py-8">
       <FadeIn>
         <div className="flex items-end justify-between mb-6">
           <div className="flex items-center gap-3">
@@ -587,7 +587,7 @@ function Skills() {
 // ── PROJECTS ─────────────────────────────────────────────────────────────────
 function Projects() {
   return (
-    <section id="projects" className="py-12">
+    <section id="projects" className="py-8">
       <FadeIn>
         <div className="flex items-end justify-between mb-6">
           <div>
@@ -737,7 +737,7 @@ function ProjectCarousel() {
 function Resume() {
   const preview = toDrivePreview(RESUME_URL)
   return (
-    <section id="resume" className="py-12">
+    <section id="resume" className="py-8">
       <FadeIn>
         <div className="flex items-center gap-3 mb-6">
           <FileText className="h-5 w-5 text-blue-500 dark:text-blue-400" />
@@ -820,7 +820,7 @@ function Contact() {
   }
 
   return (
-    <section id="contact" className="py-12">
+    <section id="contact" className="py-8">
       <FadeIn>
         <div className="flex items-center gap-3 mb-6">
           <Mail className="h-5 w-5 text-blue-500 dark:text-blue-400" />
