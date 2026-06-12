@@ -182,7 +182,7 @@ function FadeIn({ children, delay = 0, className = '' }: { children: React.React
 }
 
 export default function Page() {
-  const typed = useTypewriter(ROLES)
+  const typed = useTypewriter(ROLES, 120, 2200)
   return (
     <div className="relative isolate min-h-screen bg-gradient-to-b from-slate-50 via-white to-slate-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 text-slate-900 dark:text-white">
       {/* Floating background orbs — CSS keyframes only */}
