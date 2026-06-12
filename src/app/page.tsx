@@ -112,29 +112,29 @@ function toDrivePreview(url: string) {
   }
 }
 
-function useTypewriter(words: string[], speed = 90, pause = 1300) {
+function useTypewriter(words: string[], speed = 90, pause = 1300, gap = 600) {
   const [index, setIndex] = useState(0)
   const [display, setDisplay] = useState('')
   const [deleting, setDeleting] = useState(false)
   const word = words[index % words.length]
   useEffect(() => {
-    const t = setTimeout(() => {
-      if (!deleting) {
-        setDisplay(word.slice(0, display.length + 1))
-        if (display.length + 1 === word.length) setDeleting(true)
-      } else {
-        setDisplay(word.slice(0, display.length - 1))
-        if (display.length === 0) { setDeleting(false); setIndex((i) => (i + 1) % words.length) }
-      }
-    }, deleting ? speed / 1.6 : speed)
-    return () => clearTimeout(t)
-  }, [display, deleting, word, speed, words.length])
-  useEffect(() => {
+    // Word fully typed: hold it on screen before deleting
     if (!deleting && display === word) {
       const p = setTimeout(() => setDeleting(true), pause)
       return () => clearTimeout(p)
     }
-  }, [display, deleting, pause, word])
+    const t = setTimeout(() => {
+      if (!deleting) {
+        setDisplay(word.slice(0, display.length + 1))
+      } else if (display.length > 0) {
+        setDisplay(word.slice(0, display.length - 1))
+      } else {
+        setDeleting(false)
+        setIndex((i) => (i + 1) % words.length)
+      }
+    }, deleting ? (display.length === 0 ? gap : speed / 1.6) : speed)
+    return () => clearTimeout(t)
+  }, [display, deleting, word, speed, pause, gap, words.length])
   return display
 }
 
