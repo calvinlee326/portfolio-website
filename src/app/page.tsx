@@ -11,7 +11,7 @@ import {
   MapPin, Languages, ExternalLink, ArrowRight, Star, Code2, Loader2,
   ChevronLeft, ChevronRight, GitFork, Menu, X, Zap, Globe, Music2,
 } from 'lucide-react'
-import { motion, AnimatePresence, useInView, useScroll, useTransform, type MotionValue } from 'framer-motion'
+import { motion, AnimatePresence, useInView, useScroll, useTransform } from 'framer-motion'
 
 // ==== CONFIG ================================================================
 const NAME = 'Chun-Cheng Lee'
@@ -194,7 +194,7 @@ export default function Page() {
       <SiteNav />
       <main className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
         <Hero typed={typed} />
-        <StickyShowcase />
+        <Showcase />
         <Skills />
         <Projects />
         <Resume />
@@ -383,87 +383,33 @@ function CountUp({ value }: { value: number }) {
   return <span ref={ref}>{display.toLocaleString()}</span>
 }
 
-// ── STICKY SHOWCASE ──────────────────────────────────────────────────────────
-// Sticky scroll scene: the inner viewport pins while the 300vh section scrolls,
-// and scroll progress drives the panel crossfades.
-function ShowcaseBody({ item }: { item: (typeof SHOWCASE)[number] }) {
+// ── SHOWCASE ─────────────────────────────────────────────────────────────────
+function Showcase() {
   return (
-    <>
-      <span className={`text-[6rem] sm:text-[10rem] font-black leading-none bg-clip-text text-transparent bg-gradient-to-br ${item.gradient} select-none`}>
-        {item.num}
-      </span>
-      <div>
-        <h3 className="text-3xl sm:text-5xl font-extrabold tracking-tight">{item.title}</h3>
-        <p className="mt-4 max-w-md text-slate-500 dark:text-slate-400 text-sm sm:text-base leading-relaxed">{item.desc}</p>
-        <div className="mt-5 flex flex-wrap gap-2">
-          {item.tags.map((t) => (
-            <span key={t} className="px-2.5 py-1 rounded-full text-xs bg-slate-200 dark:bg-white/10 text-slate-700 dark:text-slate-200">
-              {t}
-            </span>
-          ))}
-        </div>
-      </div>
-    </>
-  )
-}
-
-function ShowcasePanel({ item, index, total, progress }: {
-  item: (typeof SHOWCASE)[number]
-  index: number
-  total: number
-  progress: MotionValue<number>
-}) {
-  const start = index / total
-  const end = (index + 1) / total
-  const fade = 0.18 / total
-  const opacity = useTransform(
-    progress,
-    [start, start + fade, end - fade, end],
-    [index === 0 ? 1 : 0, 1, 1, index === total - 1 ? 1 : 0],
-  )
-  const y = useTransform(
-    progress,
-    [start, start + fade, end - fade, end],
-    [index === 0 ? 0 : 48, 0, 0, index === total - 1 ? 0 : -48],
-  )
-  return (
-    <motion.div style={{ opacity, y }} className="absolute inset-0 grid sm:grid-cols-[auto_1fr] items-center gap-4 sm:gap-12">
-      <ShowcaseBody item={item} />
-    </motion.div>
-  )
-}
-
-function StickyShowcase() {
-  const ref = useRef<HTMLElement | null>(null)
-  const reduceMotion = usePrefersReducedMotion()
-  const { scrollYProgress } = useScroll({ target: ref, offset: ['start start', 'end end'] })
-  const railScaleX = useTransform(scrollYProgress, [0, 1], [0, 1])
-
-  if (reduceMotion) {
-    return (
-      <section aria-label="What I build" className="py-12 space-y-14">
-        <p className="text-xs font-semibold uppercase tracking-[0.25em] text-blue-500 dark:text-blue-400">What I build</p>
-        {SHOWCASE.map((item) => (
-          <div key={item.num} className="grid sm:grid-cols-[auto_1fr] items-center gap-4 sm:gap-12">
-            <ShowcaseBody item={item} />
-          </div>
+    <section aria-label="What I build" className="py-12">
+      <FadeIn>
+        <p className="text-xs font-semibold uppercase tracking-[0.25em] text-blue-500 dark:text-blue-400 mb-6">What I build</p>
+      </FadeIn>
+      <div className="grid md:grid-cols-3 gap-4">
+        {SHOWCASE.map((item, i) => (
+          <FadeIn key={item.num} delay={i * 0.1} className="h-full">
+            <div className="group h-full rounded-2xl border border-slate-200 bg-slate-50 dark:border-white/10 dark:bg-white/5 p-6 hover:border-blue-400/50 hover:bg-slate-100 dark:hover:bg-white/10 hover:-translate-y-1 transition-all duration-300">
+              <div className={`h-1 w-10 rounded-full bg-gradient-to-r ${item.gradient} mb-5 transition-all duration-300 group-hover:w-16`} />
+              <div className="flex items-baseline gap-2.5">
+                <span className={`text-sm font-black bg-clip-text text-transparent bg-gradient-to-br ${item.gradient}`}>{item.num}</span>
+                <h3 className="text-lg font-bold tracking-tight">{item.title}</h3>
+              </div>
+              <p className="mt-3 text-sm leading-relaxed text-slate-500 dark:text-slate-400">{item.desc}</p>
+              <div className="mt-5 flex flex-wrap gap-2">
+                {item.tags.map((t) => (
+                  <span key={t} className="px-2.5 py-1 rounded-full text-xs bg-slate-200 dark:bg-white/10 text-slate-700 dark:text-slate-200">
+                    {t}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </FadeIn>
         ))}
-      </section>
-    )
-  }
-
-  return (
-    <section ref={ref} aria-label="What I build" className="relative h-[300vh]">
-      <div className="sticky top-0 h-screen flex flex-col justify-center overflow-hidden">
-        <p className="text-xs font-semibold uppercase tracking-[0.25em] text-blue-500 dark:text-blue-400 mb-8">What I build</p>
-        <div className="relative h-[26rem] sm:h-96">
-          {SHOWCASE.map((item, i) => (
-            <ShowcasePanel key={item.num} item={item} index={i} total={SHOWCASE.length} progress={scrollYProgress} />
-          ))}
-        </div>
-        <div className="mt-10 h-1 w-40 rounded-full bg-slate-200 dark:bg-white/10 overflow-hidden">
-          <motion.div style={{ scaleX: railScaleX, transformOrigin: 'left' }} className="h-full w-full bg-gradient-to-r from-blue-500 to-emerald-400" />
-        </div>
       </div>
     </section>
   )
