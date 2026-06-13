@@ -1,6 +1,8 @@
 'use client'
 import React, { useEffect, useRef, useState, useSyncExternalStore } from 'react'
+import dynamic from 'next/dynamic'
 import { useCommandPalette } from '@/components/CommandPaletteContext'
+import { useMagnetic, Tilt } from '@/lib/anime'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -12,6 +14,9 @@ import {
   ChevronLeft, ChevronRight, GitFork, Menu, X, Zap, Globe, Music2,
 } from 'lucide-react'
 import { motion, AnimatePresence, useInView, useScroll, useTransform } from 'framer-motion'
+
+// WebGL hero orb — client-only and lazy so `three` stays out of the initial bundle
+const Hero3D = dynamic(() => import('@/components/Hero3D'), { ssr: false })
 
 // ==== CONFIG ================================================================
 const NAME = 'Chun-Cheng Lee'
@@ -288,6 +293,8 @@ function SiteNav() {
 function Hero({ typed }: { typed: string }) {
   const ref = useRef<HTMLElement | null>(null)
   const reduceMotion = usePrefersReducedMotion()
+  const contactBtn = useMagnetic<HTMLAnchorElement>()
+  const resumeBtn = useMagnetic<HTMLAnchorElement>()
   // Scroll-linked: progress 0 → 1 as the hero scrolls out of the viewport
   const { scrollYProgress } = useScroll({ target: ref, offset: ['start start', 'end start'] })
   const scale = useTransform(scrollYProgress, [0, 1], [1, 0.85])
@@ -300,7 +307,13 @@ function Hero({ typed }: { typed: string }) {
         <div className="scroll-aurora absolute -top-10 left-[15%] h-72 w-72 rounded-full bg-blue-500/20 dark:bg-blue-400/10 blur-3xl" />
         <div className="scroll-aurora absolute top-24 right-[15%] h-80 w-80 rounded-full bg-emerald-400/20 dark:bg-emerald-300/10 blur-3xl" />
       </div>
-      <motion.div style={reduceMotion ? undefined : { scale, opacity, y }}>
+      {/* WebGL distorted orb behind the hero text — skipped under reduced motion */}
+      {!reduceMotion && (
+        <div aria-hidden className="pointer-events-none absolute inset-0 opacity-60 dark:opacity-70">
+          <Hero3D />
+        </div>
+      )}
+      <motion.div className="relative" style={reduceMotion ? undefined : { scale, opacity, y }}>
       <motion.div
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
@@ -339,12 +352,12 @@ function Hero({ typed }: { typed: string }) {
         </div>
 
         <div className="mt-7 flex flex-col sm:flex-row items-center justify-center gap-3">
-          <a href="#contact">
+          <a ref={contactBtn} href="#contact" className="inline-block">
             <Button className="group bg-blue-600 hover:bg-blue-500 text-white px-6">
               Contact Me <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-0.5 transition" />
             </Button>
           </a>
-          <a href={RESUME_URL} target="_blank" rel="noreferrer">
+          <a ref={resumeBtn} href={RESUME_URL} target="_blank" rel="noreferrer" className="inline-block">
             <Button variant="secondary" className="bg-slate-100 hover:bg-slate-200 text-slate-800 dark:bg-white/10 dark:text-white dark:hover:bg-white/20 px-6">
               <FileText className="mr-2 h-4 w-4" /> View Resume
             </Button>
@@ -393,7 +406,7 @@ function Showcase() {
       <div className="grid md:grid-cols-3 gap-4">
         {SHOWCASE.map((item, i) => (
           <FadeIn key={item.num} delay={i * 0.1} className="h-full">
-            <div className="group h-full rounded-2xl border border-slate-200 bg-slate-50 dark:border-white/10 dark:bg-white/5 p-6 hover:border-blue-400/50 hover:bg-slate-100 dark:hover:bg-white/10 hover:-translate-y-1 transition-all duration-300">
+            <Tilt className="group h-full rounded-2xl border border-slate-200 bg-slate-50 dark:border-white/10 dark:bg-white/5 p-6 hover:border-blue-400/50 hover:bg-slate-100 dark:hover:bg-white/10 transition-colors duration-300">
               <div className={`h-1 w-10 rounded-full bg-gradient-to-r ${item.gradient} mb-5 transition-all duration-300 group-hover:w-16`} />
               <div className="flex items-baseline gap-2.5">
                 <span className={`text-sm font-black bg-clip-text text-transparent bg-gradient-to-br ${item.gradient}`}>{item.num}</span>
@@ -407,7 +420,7 @@ function Showcase() {
                   </span>
                 ))}
               </div>
-            </div>
+            </Tilt>
           </FadeIn>
         ))}
       </div>
@@ -542,7 +555,7 @@ function Skills() {
               transition={{ duration: 0.5, delay: ci * 0.08, ease: [0.34, 1.56, 0.64, 1], opacity: { duration: 0.5, delay: ci * 0.08, ease: 'easeOut' } }}
               className="h-full"
             >
-              <div className="rounded-2xl border border-slate-200 bg-slate-50 dark:border-white/10 dark:bg-white/5 p-4 h-full hover:border-blue-400/50 hover:bg-slate-100 dark:hover:bg-white/10 transition-all duration-300">
+              <Tilt max={5} className="rounded-2xl border border-slate-200 bg-slate-50 dark:border-white/10 dark:bg-white/5 p-4 h-full hover:border-blue-400/50 hover:bg-slate-100 dark:hover:bg-white/10 transition-colors duration-300">
                 <p className="text-xs font-semibold uppercase tracking-widest text-blue-500 dark:text-blue-400 mb-3">{category}</p>
                 <div className="flex flex-wrap gap-2">
                   {items.map((skill) => (
@@ -554,7 +567,7 @@ function Skills() {
                     </span>
                   ))}
                 </div>
-              </div>
+              </Tilt>
             </motion.div>
           ))}
         </div>
@@ -662,6 +675,7 @@ function ProjectCarousel() {
             transition={{ duration: 0.5, delay: i * 0.08, ease: [0.34, 1.56, 0.64, 1], opacity: { duration: 0.5, delay: i * 0.08, ease: 'easeOut' } }}
             className="h-full"
           >
+            <Tilt className="h-full">
             <Card className="group h-full hover:border-blue-400/40 hover:shadow-xl hover:shadow-blue-500/10 dark:hover:bg-white/[0.07] transition-all duration-300 flex flex-col">
               <CardHeader className="pb-2">
                 <CardTitle className="text-base flex items-center justify-between gap-2">
@@ -705,6 +719,7 @@ function ProjectCarousel() {
                 </div>
               </CardContent>
             </Card>
+            </Tilt>
           </motion.div>
         ))}
       </div>
