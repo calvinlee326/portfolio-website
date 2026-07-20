@@ -1,6 +1,7 @@
 'use client'
 import { useEffect, useSyncExternalStore } from 'react'
 import dynamic from 'next/dynamic'
+import { motion, useMotionValue, useSpring } from 'framer-motion'
 import { ThemeToggle } from '@/components/ThemeToggle'
 import { useCommandPalette } from '@/components/CommandPaletteContext'
 import { StaticExperience } from '@/components/experience/StaticExperience'
@@ -69,6 +70,11 @@ function Enhanced() {
   const canvasOpacity = 1 - rangeProgress(progress, 0.5, 0.66) * 0.85
   const showHint = progress < 0.04
 
+  // Spring-smoothed so the reveal eases in rather than tracking the scrollbar linearly.
+  const opacityMV = useMotionValue(terminalOpacity)
+  const smoothOpacity = useSpring(opacityMV, { stiffness: 120, damping: 20 })
+  useEffect(() => opacityMV.set(terminalOpacity), [terminalOpacity, opacityMV])
+
   return (
     <>
       <div className="fixed inset-0 z-0 bg-[#03040a]" style={{ opacity: canvasOpacity }}>
@@ -78,12 +84,12 @@ function Enhanced() {
       {/* Scroll driver — gives the page height the zoom + reveal scrub against */}
       <div style={{ height: '600vh' }} aria-hidden />
 
-      <div
+      <motion.div
         className="fixed inset-0 z-10 flex items-center justify-center p-4 sm:p-8"
-        style={{ opacity: terminalOpacity, pointerEvents: progress > 0.5 ? 'auto' : 'none' }}
+        style={{ opacity: smoothOpacity, pointerEvents: progress > 0.5 ? 'auto' : 'none' }}
       >
         <Terminal progress={progress} variant="fixed" />
-      </div>
+      </motion.div>
 
       <TopBar />
 
