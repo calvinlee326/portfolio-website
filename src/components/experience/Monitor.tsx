@@ -12,6 +12,8 @@ const SCREEN_DIM = '#059669'
 // screen, so the boot text lives on the screen plane (crisp SDF text).
 export function Monitor() {
   const group = useRef<THREE.Group>(null)
+  const screenMat = useRef<THREE.MeshStandardMaterial>(null)
+  const cursor = useRef<THREE.Object3D>(null)
 
   useFrame((state) => {
     const g = group.current
@@ -21,6 +23,11 @@ export function Monitor() {
     g.rotation.y = Math.sin(t * 0.2) * 0.08
     g.rotation.x = Math.sin(t * 0.15) * 0.04
     g.position.y = Math.sin(t * 0.4) * 0.04
+    // Subtle CRT flicker + a blinking cursor so the screen reads as powered on
+    if (screenMat.current) {
+      screenMat.current.emissiveIntensity = 0.6 + Math.sin(t * 23) * 0.02 + Math.sin(t * 7.3) * 0.03
+    }
+    if (cursor.current) cursor.current.visible = t % 1 < 0.55
   })
 
   return (
@@ -33,7 +40,7 @@ export function Monitor() {
       {/* Screen — emissive so it glows in the dark */}
       <mesh position={[0, 0.08, 0.18]}>
         <planeGeometry args={[3.0, 1.95]} />
-        <meshStandardMaterial color="#050705" emissive="#06281a" emissiveIntensity={0.6} roughness={0.3} />
+        <meshStandardMaterial ref={screenMat} color="#050705" emissive="#06281a" emissiveIntensity={0.6} roughness={0.3} />
       </mesh>
 
       {/* Light cast by the screen */}
@@ -45,7 +52,8 @@ export function Monitor() {
         <Text position={[0, -0.32, 0]} fontSize={0.13} color={SCREEN_DIM} anchorX="left" anchorY="top">{'> booting…'}</Text>
         <Text position={[0, -0.62, 0]} fontSize={0.15} color="#e5e5e5" anchorX="left" anchorY="top">{`user: ${NAME}`}</Text>
         <Text position={[0, -0.92, 0]} fontSize={0.13} color="#34d399" anchorX="left" anchorY="top">status: open to work</Text>
-        <Text position={[0, -1.4, 0]} fontSize={0.12} color={SCREEN_DIM} anchorX="left" anchorY="top">scroll to enter ▌</Text>
+        <Text position={[0, -1.4, 0]} fontSize={0.12} color={SCREEN_DIM} anchorX="left" anchorY="top">scroll to enter</Text>
+        <Text ref={cursor} position={[1.02, -1.4, 0]} fontSize={0.12} color={SCREEN} anchorX="left" anchorY="top">▌</Text>
       </group>
 
       {/* Neck + base */}

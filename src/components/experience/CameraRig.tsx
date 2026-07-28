@@ -16,8 +16,10 @@ export function CameraRig() {
     // Gentle parallax drift while still approaching, settling to centered on dive
     const drift = 1 - eased
     const t = state.clock.elapsedTime
-    state.camera.position.x = THREE.MathUtils.lerp(state.camera.position.x, Math.sin(t * 0.2) * 0.3 * drift, 0.05)
-    state.camera.position.y = THREE.MathUtils.lerp(state.camera.position.y, Math.cos(t * 0.15) * 0.2 * drift, 0.05)
+    const px = (Math.sin(t * 0.2) * 0.3 + state.pointer.x * 0.5) * drift
+    const py = (Math.cos(t * 0.15) * 0.2 + state.pointer.y * 0.3) * drift
+    state.camera.position.x = THREE.MathUtils.lerp(state.camera.position.x, px, 0.05)
+    state.camera.position.y = THREE.MathUtils.lerp(state.camera.position.y, py, 0.05)
     state.camera.lookAt(0, 0, 0)
   })
   return null

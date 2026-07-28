@@ -1,5 +1,5 @@
 'use client'
-import { useEffect, useRef, type ReactNode } from 'react'
+import { useEffect, useRef, useState, type ReactNode } from 'react'
 import {
   NAME, LOCATION, LANGUAGES, BIO, SKILLS, RESUME_URL, RESUME_SUMMARY,
   toDrivePreview, EMAIL, LINKEDIN, GITHUB_USER,
@@ -11,6 +11,36 @@ import { StatusBar } from './blocks/StatusBar'
 
 function Caret() {
   return <span className="ml-0.5 animate-pulse text-emerald-400">▌</span>
+}
+
+function PromptPrefix() {
+  return (
+    <>
+      <span className="text-emerald-400">visitor@portfolio</span>
+      <span className="text-neutral-600">:</span>
+      <span className="text-neutral-400">~</span>
+      <span className="text-neutral-500">$</span>
+    </>
+  )
+}
+
+function SkillsListing() {
+  return (
+    <div className="grid gap-3 sm:grid-cols-2">
+      {Object.entries(SKILLS).map(([category, items]) => (
+        <div key={category}>
+          <div className="text-neutral-100">{category}/</div>
+          <div className="mt-1 flex flex-wrap gap-1.5">
+            {items.map((s) => (
+              <span key={s} className="bg-white/5 px-1.5 py-0.5 text-xs text-neutral-300">
+                {s}
+              </span>
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
+  )
 }
 
 interface CommandProps {
@@ -29,10 +59,7 @@ function Command({ cmd, localP, start, end, id, children }: CommandProps) {
   return (
     <div id={id} className="mb-6 scroll-mt-24">
       <div className="flex items-center gap-1.5">
-        <span className="text-emerald-400">visitor@portfolio</span>
-        <span className="text-neutral-600">:</span>
-        <span className="text-neutral-400">~</span>
-        <span className="text-neutral-500">$</span>
+        <PromptPrefix />
         <span className="text-neutral-100">{shown}</span>
         {!done && <Caret />}
       </div>
@@ -50,9 +77,197 @@ function Command({ cmd, localP, start, end, id, children }: CommandProps) {
   )
 }
 
+// ── INTERACTIVE SHELL ────────────────────────────────────────────────────────
+const COMMANDS = [
+  ['help', 'list available commands'],
+  ['whoami', 'who is this'],
+  ['projects', 'real repos, live from GitHub'],
+  ['skills', 'what I work with'],
+  ['about', 'short bio'],
+  ['resume', 'summary + download'],
+  ['contact', 'send me a message'],
+  ['github', 'open my GitHub profile'],
+  ['linkedin', 'open my LinkedIn'],
+  ['classic', 'switch to the classic layout'],
+  ['clear', 'clear the screen'],
+] as const
+
+function HelpOut() {
+  return (
+    <div className="space-y-0.5">
+      {COMMANDS.map(([cmd, desc]) => (
+        <div key={cmd} className="flex gap-3">
+          <span className="w-20 shrink-0 text-neutral-100">{cmd}</span>
+          <span className="text-neutral-500">{desc}</span>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+function ResumeOut() {
+  return (
+    <div className="space-y-4">
+      <div className="space-y-2">
+        {RESUME_SUMMARY.map((item) => (
+          <div key={item.label} className="flex gap-2">
+            <span className="text-emerald-400">▸</span>
+            <div>
+              <span className="text-neutral-100">{item.label}</span>
+              <span className="text-neutral-400">: {item.desc}</span>
+            </div>
+          </div>
+        ))}
+      </div>
+      <a
+        href={RESUME_URL}
+        target="_blank"
+        rel="noreferrer"
+        className="inline-block bg-white px-4 py-2 font-medium text-neutral-950 transition hover:bg-neutral-200"
+      >
+        download resume ↓
+      </a>
+    </div>
+  )
+}
+
+function openExternal(url: string): ReactNode {
+  window.open(url, '_blank', 'noopener,noreferrer')
+  return <p className="text-neutral-400">opening {url}</p>
+}
+
+function execute(raw: string): ReactNode {
+  const cmd = raw.toLowerCase().replace(/\/$/, '').replace(/\s+/g, ' ')
+  switch (cmd) {
+    case 'help':
+      return <HelpOut />
+    case 'whoami':
+      return (
+        <div className="space-y-0.5">
+          <div className="text-neutral-100">{NAME}</div>
+          <div className="text-neutral-400">{LOCATION} · {LANGUAGES.join(' / ')}</div>
+        </div>
+      )
+    case 'projects':
+    case 'git log':
+    case 'git log --oneline':
+      return <Projects />
+    case 'skills':
+    case 'ls':
+    case 'ls skills':
+      return <SkillsListing />
+    case 'about':
+    case 'cat about.txt':
+      return <p className="max-w-2xl text-neutral-300">{BIO}</p>
+    case 'resume':
+    case 'cat resume.pdf':
+      return <ResumeOut />
+    case 'contact':
+    case './contact.sh':
+      return <Contact />
+    case 'email':
+      return (
+        <a href={`mailto:${EMAIL}`} className="text-neutral-100 underline underline-offset-4">{EMAIL}</a>
+      )
+    case 'github':
+      return openExternal(`https://github.com/${GITHUB_USER}`)
+    case 'linkedin':
+      return openExternal(LINKEDIN)
+    case 'classic':
+      window.location.href = '/classic'
+      return <p className="text-neutral-400">switching to classic layout…</p>
+    default:
+      return (
+        <p className="text-red-400">
+          command not found: {raw}. type <span className="text-neutral-100">help</span>
+        </p>
+      )
+  }
+}
+
+interface HistoryEntry {
+  cmd: string
+  out: ReactNode
+}
+
+function InteractiveShell() {
+  const [history, setHistory] = useState<HistoryEntry[]>([])
+  const [value, setValue] = useState('')
+  const [histIdx, setHistIdx] = useState(-1)
+  const inputRef = useRef<HTMLInputElement>(null)
+  const endRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    endRef.current?.scrollIntoView({ block: 'nearest' })
+  }, [history])
+
+  function onKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
+    if (e.key === 'Enter') {
+      const cmd = value.trim()
+      setValue('')
+      setHistIdx(-1)
+      if (!cmd) return
+      if (cmd === 'clear') {
+        setHistory([])
+        return
+      }
+      setHistory((h) => [...h, { cmd, out: execute(cmd) }])
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault()
+      const idx = histIdx < 0 ? history.length - 1 : Math.max(histIdx - 1, 0)
+      if (history[idx]) {
+        setHistIdx(idx)
+        setValue(history[idx].cmd)
+      }
+    } else if (e.key === 'ArrowDown') {
+      e.preventDefault()
+      if (histIdx < 0) return
+      const idx = histIdx + 1
+      if (idx >= history.length) {
+        setHistIdx(-1)
+        setValue('')
+      } else {
+        setHistIdx(idx)
+        setValue(history[idx].cmd)
+      }
+    }
+  }
+
+  return (
+    <div onClick={() => inputRef.current?.focus()}>
+      {history.map((h, i) => (
+        <div key={i} className="mb-6">
+          <div className="flex items-center gap-1.5">
+            <PromptPrefix />
+            <span className="text-neutral-100">{h.cmd}</span>
+          </div>
+          <div className="mt-2 pl-1">{h.out}</div>
+        </div>
+      ))}
+      <div className="flex items-center gap-1.5">
+        <PromptPrefix />
+        <input
+          ref={inputRef}
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
+          onKeyDown={onKeyDown}
+          className="min-w-0 flex-1 bg-transparent text-neutral-100 caret-emerald-400 outline-none placeholder:text-neutral-600"
+          placeholder="type help"
+          spellCheck={false}
+          autoComplete="off"
+          autoCapitalize="off"
+          aria-label="Terminal command input"
+        />
+      </div>
+      <div ref={endRef} />
+    </div>
+  )
+}
+
 export function Terminal({ progress, variant }: { progress: number; variant: 'fixed' | 'static' }) {
   const bodyRef = useRef<HTMLDivElement>(null)
   const localP = variant === 'static' ? 1 : rangeProgress(progress, 0.5, 1)
+  const replayDone = localP >= 0.999
 
   // In fixed mode the body follows the latest typed line like a real terminal.
   useEffect(() => {
@@ -97,20 +312,7 @@ export function Terminal({ progress, variant }: { progress: number; variant: 'fi
         </Command>
 
         <Command cmd="ls skills/" localP={localP} {...SCHEDULE.skills} id="skills">
-          <div className="grid gap-3 sm:grid-cols-2">
-            {Object.entries(SKILLS).map(([category, items]) => (
-              <div key={category}>
-                <div className="text-neutral-100">{category}/</div>
-                <div className="mt-1 flex flex-wrap gap-1.5">
-                  {items.map((s) => (
-                    <span key={s} className="bg-white/5 px-1.5 py-0.5 text-xs text-neutral-300">
-                      {s}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
+          <SkillsListing />
         </Command>
 
         <Command cmd="cat resume.pdf" localP={localP} {...SCHEDULE.resume} id="resume">
@@ -157,6 +359,8 @@ export function Terminal({ progress, variant }: { progress: number; variant: 'fi
           </div>
         </Command>
 
+        {/* Replay finished: hand the prompt over to the visitor */}
+        {replayDone && <InteractiveShell />}
         <div className="pb-10" />
       </div>
 

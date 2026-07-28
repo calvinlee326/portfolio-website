@@ -66,7 +66,7 @@ function Enhanced() {
   useEffect(() => initScrollProgress(), [])
 
   const terminalOpacity = rangeProgress(progress, 0.42, 0.55)
-  const canvasOpacity = 1 - rangeProgress(progress, 0.5, 0.66) * 0.85
+  const canvasOpacity = 1 - rangeProgress(progress, 0.5, 0.66) * 0.55
   const showHint = progress < 0.04
 
   return (

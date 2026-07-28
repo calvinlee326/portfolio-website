@@ -84,7 +84,7 @@ function SiteNav() {
             href="/"
             className="text-sm text-neutral-600 hover:text-neutral-900 hover:underline underline-offset-4 transition-colors"
           >
-            3D terminal
+            Terminal
           </Link>
           <button
             onClick={() => openPalette(true)}
@@ -122,7 +122,7 @@ function SiteNav() {
                 </a>
               ))}
               <Link href="/" className="text-sm text-neutral-600 hover:text-neutral-900">
-                3D terminal
+                Terminal
               </Link>
             </div>
           </motion.div>
@@ -608,7 +608,7 @@ function Footer() {
           <button onClick={() => openPalette(true)} className="hover:text-neutral-900 transition-colors">
             Press <kbd className="font-sans">⌘K</kbd> to navigate
           </button>
-          <Link href="/" className="underline underline-offset-4 hover:text-neutral-900">3D terminal</Link>
+          <Link href="/" className="underline underline-offset-4 hover:text-neutral-900">Terminal</Link>
         </div>
       </div>
     </footer>
