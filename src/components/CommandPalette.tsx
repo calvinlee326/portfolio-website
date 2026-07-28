@@ -7,6 +7,7 @@ import {
   LucideInstagram, ExternalLink, Copy, Check,
 } from 'lucide-react'
 import { useCommandPalette } from './CommandPaletteContext'
+import { scrollToSection } from './experience/scrollStore'
 
 const GITHUB = 'https://github.com/calvinlee326'
 const LINKEDIN = 'https://www.linkedin.com/in/chunchenglee326/'
@@ -26,10 +27,10 @@ interface Item {
 
 // Static items — defined outside the component so they are not recreated on each render
 const NAV_ITEMS: Item[] = [
-  { id: 'skills', label: 'Go to Skills', icon: <Zap className="h-4 w-4" />, onSelect: () => document.getElementById('skills')?.scrollIntoView({ behavior: 'smooth' }) },
-  { id: 'projects', label: 'Go to Projects', icon: <Code2 className="h-4 w-4" />, onSelect: () => document.getElementById('projects')?.scrollIntoView({ behavior: 'smooth' }) },
-  { id: 'resume', label: 'Go to Resume', icon: <FileText className="h-4 w-4" />, onSelect: () => document.getElementById('resume')?.scrollIntoView({ behavior: 'smooth' }) },
-  { id: 'contact', label: 'Go to Contact', icon: <Mail className="h-4 w-4" />, onSelect: () => document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' }) },
+  { id: 'projects', label: 'Go to Projects', icon: <Code2 className="h-4 w-4" />, onSelect: () => scrollToSection('projects') },
+  { id: 'skills', label: 'Go to Skills', icon: <Zap className="h-4 w-4" />, onSelect: () => scrollToSection('skills') },
+  { id: 'resume', label: 'Go to Resume', icon: <FileText className="h-4 w-4" />, onSelect: () => scrollToSection('resume') },
+  { id: 'contact', label: 'Go to Contact', icon: <Mail className="h-4 w-4" />, onSelect: () => scrollToSection('contact') },
 ]
 
 const LINK_ITEMS: Item[] = [
@@ -75,7 +76,7 @@ export function CommandPalette() {
       id: 'contact-me',
       label: 'Go to Contact Form',
       icon: <Mail className="h-4 w-4" />,
-      onSelect: () => { document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' }); setOpen(false) },
+      onSelect: () => { scrollToSection('contact'); setOpen(false) },
     },
   ], [copied, setOpen])
 

@@ -1,6 +1,19 @@
 'use client'
 import { memo, useEffect, useState } from 'react'
-import { type GitHubRepo, LANG_COLORS, REPO_DESCRIPTIONS, LIVE_DEMOS } from '@/lib/content'
+import { type GitHubRepo, GITHUB_USER, LANG_COLORS, REPO_DESCRIPTIONS, LIVE_DEMOS } from '@/lib/content'
+
+// If the GitHub API is unreachable, the page's core content must not collapse
+// into an error line — fall back to the curated repos we already describe.
+const FALLBACK_REPOS: GitHubRepo[] = Object.entries(REPO_DESCRIPTIONS).map(([name, description]) => ({
+  id: Array.from(name).reduce((a, c) => (a * 31 + c.charCodeAt(0)) >>> 0, 7),
+  name,
+  description,
+  html_url: `https://github.com/${GITHUB_USER}/${name}`,
+  stargazers_count: 0,
+  forks_count: 0,
+  language: null,
+  pushed_at: '',
+}))
 
 export const Projects = memo(function Projects() {
   const [repos, setRepos] = useState<GitHubRepo[]>([])
@@ -24,11 +37,15 @@ export const Projects = memo(function Projects() {
   }, [])
 
   if (state === 'loading') return <div className="text-slate-500">fetching commits…</div>
-  if (state === 'error') return <div className="text-rose-400">error: could not reach github</div>
+
+  const list = state === 'error' ? FALLBACK_REPOS : repos
 
   return (
     <div className="space-y-2.5">
-      {repos.map((r) => {
+      {state === 'error' && (
+        <div className="text-amber-400/90">warn: could not reach github — showing pinned repos</div>
+      )}
+      {list.map((r) => {
         const hash = (r.id.toString(16) + '0000000').slice(0, 7)
         return (
           <div key={r.id}>
@@ -56,6 +73,16 @@ export const Projects = memo(function Projects() {
           </div>
         )
       })}
+      {state === 'error' && (
+        <a
+          href={`https://github.com/${GITHUB_USER}`}
+          target="_blank"
+          rel="noreferrer"
+          className="inline-block text-sky-300 hover:underline"
+        >
+          view all on github↗
+        </a>
+      )}
     </div>
   )
 })

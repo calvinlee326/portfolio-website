@@ -4,6 +4,9 @@ const nextConfig = {
   // A stray package-lock.json in the home directory makes Turbopack mis-infer the workspace root
   turbopack: { root: import.meta.dirname },
   async headers() {
+    // Dev-only allowance so impeccable live mode can load.
+    const __impeccableLiveDev =
+      process.env.NODE_ENV === 'development' ? ' http://localhost:8400' : ''
     return [
       {
         source: '/(.*)',
@@ -21,7 +24,7 @@ const nextConfig = {
             value: [
               "default-src 'self'",
               // Next.js App Router requires unsafe-inline for hydration scripts
-              "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
+              `script-src 'self' 'unsafe-inline' 'unsafe-eval'${__impeccableLiveDev}`,
               // Tailwind + Framer Motion use inline styles
               "style-src 'self' 'unsafe-inline'",
               // Allow images from anywhere (GitHub avatars, etc.) and data URIs
@@ -30,7 +33,7 @@ const nextConfig = {
               // Resume iframe is served from Google Drive
               "frame-src https://drive.google.com",
               // All API calls go through our own Next.js routes now
-              "connect-src 'self'",
+              `connect-src 'self'${__impeccableLiveDev}`,
               "object-src 'none'",
               // Prevent this site from being embedded in iframes elsewhere
               "frame-ancestors 'none'",

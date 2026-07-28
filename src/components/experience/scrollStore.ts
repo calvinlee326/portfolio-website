@@ -1,5 +1,6 @@
 'use client'
 import { useSyncExternalStore } from 'react'
+import { SCHEDULE } from './util'
 
 // Global scroll progress (0 = top, 1 = bottom), shared between the WebGL frame
 // loop (imperative getProgress) and React (useProgress). rAF-coalesced so a
@@ -51,4 +52,18 @@ function subscribe(cb: () => void): () => void {
 
 export function useProgress(): number {
   return useSyncExternalStore(subscribe, getProgress, () => 0)
+}
+
+// Palette navigation. On the enhanced `/` the terminal is position:fixed and
+// page scroll drives the reveal, so scrollIntoView cannot reach a section;
+// jump the page to the progress where that command has fully revealed instead.
+export function scrollToSection(id: string): void {
+  const target = SCHEDULE[id as keyof typeof SCHEDULE]
+  if (initialized && target) {
+    const max = document.documentElement.scrollHeight - window.innerHeight
+    const localP = Math.min(target.end + 0.04, 1)
+    window.scrollTo({ top: (0.5 + localP * 0.5) * max, behavior: 'smooth' })
+    return
+  }
+  document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' })
 }

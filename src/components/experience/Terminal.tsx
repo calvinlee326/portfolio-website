@@ -4,7 +4,7 @@ import {
   NAME, LOCATION, LANGUAGES, BIO, SKILLS, RESUME_URL, RESUME_SUMMARY,
   toDrivePreview, EMAIL, LINKEDIN, GITHUB_USER,
 } from '@/lib/content'
-import { rangeProgress } from './util'
+import { rangeProgress, SCHEDULE } from './util'
 import { Projects } from './blocks/Projects'
 import { Contact } from './blocks/Contact'
 import { StatusBar } from './blocks/StatusBar'
@@ -36,9 +36,12 @@ function Command({ cmd, localP, start, end, id, children }: CommandProps) {
         <span className="text-slate-100">{shown}</span>
         {!done && <Caret />}
       </div>
+      {/* max-h-0 collapses unrevealed output so the scrollable body only ever
+          contains typed history — otherwise hidden content inflates scrollHeight
+          and the bottom-pin clips revealed lines out of reach. */}
       <div
         className={`mt-2 pl-1 transition-all duration-500 ${
-          done ? 'translate-y-0 opacity-100' : 'pointer-events-none translate-y-2 opacity-0'
+          done ? 'translate-y-0 opacity-100' : 'pointer-events-none max-h-0 overflow-hidden translate-y-2 opacity-0'
         }`}
       >
         {children}
@@ -72,10 +75,10 @@ export function Terminal({ progress, variant }: { progress: number; variant: 'fi
       <div
         ref={bodyRef}
         className={`px-5 py-5 font-mono text-sm leading-relaxed text-slate-300 ${
-          variant === 'fixed' ? 'h-[64vh] overflow-hidden' : ''
+          variant === 'fixed' ? 'h-[64vh] overflow-y-auto' : ''
         }`}
       >
-        <Command cmd="whoami" localP={localP} start={0} end={0.05}>
+        <Command cmd="whoami" localP={localP} {...SCHEDULE.whoami}>
           <div className="space-y-0.5">
             <div className="text-slate-100">{NAME}</div>
             <div className="text-slate-400">
@@ -84,11 +87,16 @@ export function Terminal({ progress, variant }: { progress: number; variant: 'fi
           </div>
         </Command>
 
-        <Command cmd="cat about.txt" localP={localP} start={0.09} end={0.16}>
+        {/* Proof leads: real repos right after the intro, before any preamble */}
+        <Command cmd="git log --oneline" localP={localP} {...SCHEDULE.projects} id="projects">
+          <Projects />
+        </Command>
+
+        <Command cmd="cat about.txt" localP={localP} {...SCHEDULE.about}>
           <p className="max-w-2xl text-slate-300">{BIO}</p>
         </Command>
 
-        <Command cmd="ls skills/" localP={localP} start={0.22} end={0.3} id="skills">
+        <Command cmd="ls skills/" localP={localP} {...SCHEDULE.skills} id="skills">
           <div className="grid gap-3 sm:grid-cols-2">
             {Object.entries(SKILLS).map(([category, items]) => (
               <div key={category}>
@@ -105,11 +113,7 @@ export function Terminal({ progress, variant }: { progress: number; variant: 'fi
           </div>
         </Command>
 
-        <Command cmd="git log --oneline" localP={localP} start={0.4} end={0.48} id="projects">
-          <Projects />
-        </Command>
-
-        <Command cmd="cat resume.pdf" localP={localP} start={0.6} end={0.68} id="resume">
+        <Command cmd="cat resume.pdf" localP={localP} {...SCHEDULE.resume} id="resume">
           <div className="space-y-4">
             <div className="space-y-2">
               {RESUME_SUMMARY.map((item) => (
@@ -136,7 +140,7 @@ export function Terminal({ progress, variant }: { progress: number; variant: 'fi
           </div>
         </Command>
 
-        <Command cmd="./contact.sh" localP={localP} start={0.8} end={0.88} id="contact">
+        <Command cmd="./contact.sh" localP={localP} {...SCHEDULE.contact} id="contact">
           <div className="space-y-4">
             <Contact />
             <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-500">

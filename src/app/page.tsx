@@ -36,15 +36,17 @@ function useEnhanced(): boolean {
   return useSyncExternalStore(noopSubscribe, getEnhanceSnapshot, () => false)
 }
 
-function TopBar() {
+function TopBar({ fixed = true }: { fixed?: boolean }) {
   const { setOpen } = useCommandPalette()
   return (
-    <div className="fixed inset-x-0 top-0 z-20 flex items-center justify-between px-4 py-3 sm:px-6">
+    <div
+      className={`${fixed ? 'fixed inset-x-0 top-0' : ''} z-20 flex items-center justify-between px-4 py-3 sm:px-6`}
+    >
       <span className="font-mono text-sm font-bold text-slate-200">~/chun-cheng</span>
       <div className="flex items-center gap-1">
         <button
           onClick={() => setOpen(true)}
-          className="hidden rounded-lg px-2 py-1 font-mono text-xs text-slate-400 transition hover:bg-white/10 hover:text-slate-200 sm:block"
+          className="rounded-lg px-2 py-1 font-mono text-xs text-slate-400 transition hover:bg-white/10 hover:text-slate-200"
           aria-label="Open command palette"
         >
           ⌘K
@@ -92,7 +94,7 @@ function Enhanced() {
         style={{ opacity: showHint ? 1 : 0 }}
       >
         <span>scroll to enter</span>
-        <span className="animate-bounce">↓</span>
+        <span className="animate-pulse">↓</span>
       </div>
     </>
   )
@@ -100,7 +102,14 @@ function Enhanced() {
 
 export default function Page() {
   const enhanced = useEnhanced()
-  // SSR + reduced/mobile/no-WebGL → accessible static terminal (content in HTML)
-  if (!enhanced) return <StaticExperience />
+  // SSR + reduced/mobile/no-WebGL → accessible static terminal (content in HTML),
+  // with the same chrome (name, palette trigger, classic escape) as enhanced mode
+  if (!enhanced)
+    return (
+      <div className="bg-[#070a12]">
+        <TopBar fixed={false} />
+        <StaticExperience />
+      </div>
+    )
   return <Enhanced />
 }
