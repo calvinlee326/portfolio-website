@@ -39,35 +39,35 @@ export const Contact = memo(function Contact() {
   }
 
   const field =
-    'w-full bg-black/30 border border-white/10 rounded px-3 py-2 text-slate-100 placeholder:text-slate-600 focus:border-emerald-400/60 focus:outline-none'
+    'w-full bg-black/30 border border-white/10 px-3 py-2 text-neutral-100 placeholder:text-neutral-600 focus:border-white/40 focus:outline-none'
 
   return (
     <form ref={formRef} onSubmit={onSubmit} className="max-w-md space-y-2.5">
       {/* Honeypot */}
       <input name="website" type="text" tabIndex={-1} autoComplete="off" aria-hidden="true" className="hidden" />
       <div className="flex flex-col gap-1">
-        <label className="text-xs text-slate-500">name:</label>
+        <label className="text-xs text-neutral-500">name:</label>
         <input name="name" required placeholder="your name" className={field} />
       </div>
       <div className="flex flex-col gap-1">
-        <label className="text-xs text-slate-500">email:</label>
+        <label className="text-xs text-neutral-500">email:</label>
         <input name="email" type="email" required placeholder="you@example.com" className={field} />
       </div>
       <div className="flex flex-col gap-1">
-        <label className="text-xs text-slate-500">message:</label>
+        <label className="text-xs text-neutral-500">message:</label>
         <textarea name="message" required rows={4} placeholder="say hello…" className={`${field} resize-none`} />
       </div>
       <button
         type="submit"
         disabled={sending}
-        className="rounded bg-emerald-500/90 px-4 py-2 font-medium text-slate-950 transition hover:bg-emerald-400 disabled:opacity-60"
+        className="bg-white px-4 py-2 font-medium text-neutral-950 transition hover:bg-neutral-200 disabled:opacity-60"
       >
         {sending ? 'transmitting…' : 'send ↵'}
       </button>
-      {status === 'success' && <p className="text-emerald-400">✓ message transmitted — I&apos;ll reply soon.</p>}
+      {status === 'success' && <p className="text-emerald-400">✓ message transmitted. I&apos;ll reply soon.</p>}
       {status === 'error' && (
-        <p className="text-rose-400">
-          transmission failed — try{' '}
+        <p className="text-red-400">
+          transmission failed, try{' '}
           <a href={LINKEDIN} className="underline" target="_blank" rel="noreferrer">
             LinkedIn
           </a>

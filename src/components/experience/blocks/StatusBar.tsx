@@ -43,11 +43,11 @@ export const StatusBar = memo(function StatusBar() {
   }, [])
 
   return (
-    <div className="flex items-center justify-between gap-3 text-[11px] text-slate-500">
+    <div className="flex items-center justify-between gap-3 text-[11px] text-neutral-500">
       <span className="truncate">
         {spotify?.isPlaying ? (
           <a href={spotify.songUrl} target="_blank" rel="noreferrer" className="text-emerald-400/90 hover:underline">
-            ♪ {spotify.title} — {spotify.artist}
+            ♪ {spotify.title}, {spotify.artist}
           </a>
         ) : (
           <span>♪ not playing</span>

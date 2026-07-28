@@ -1,7 +1,6 @@
 'use client'
 import { useEffect, useSyncExternalStore } from 'react'
 import dynamic from 'next/dynamic'
-import { ThemeToggle } from '@/components/ThemeToggle'
 import { useCommandPalette } from '@/components/CommandPaletteContext'
 import { StaticExperience } from '@/components/experience/StaticExperience'
 import { Terminal } from '@/components/experience/Terminal'
@@ -42,22 +41,21 @@ function TopBar({ fixed = true }: { fixed?: boolean }) {
     <div
       className={`${fixed ? 'fixed inset-x-0 top-0' : ''} z-20 flex items-center justify-between px-4 py-3 sm:px-6`}
     >
-      <span className="font-mono text-sm font-bold text-slate-200">~/chun-cheng</span>
+      <span className="font-mono text-sm font-bold text-neutral-200">~/chun-cheng</span>
       <div className="flex items-center gap-1">
         <button
           onClick={() => setOpen(true)}
-          className="rounded-lg px-2 py-1 font-mono text-xs text-slate-400 transition hover:bg-white/10 hover:text-slate-200"
+          className="px-2 py-1 font-mono text-xs text-neutral-400 transition hover:bg-white/10 hover:text-neutral-200"
           aria-label="Open command palette"
         >
           ⌘K
         </button>
         <a
           href="/classic"
-          className="rounded-lg px-2 py-1 font-mono text-xs text-slate-400 transition hover:bg-white/10 hover:text-slate-200"
+          className="px-2 py-1 font-mono text-xs text-neutral-400 transition hover:bg-white/10 hover:text-neutral-200"
         >
           classic↗
         </a>
-        <ThemeToggle />
       </div>
     </div>
   )
@@ -73,7 +71,7 @@ function Enhanced() {
 
   return (
     <>
-      <div className="fixed inset-0 z-0 bg-[#03040a]" style={{ opacity: canvasOpacity }}>
+      <div className="fixed inset-0 z-0 bg-[#050505]" style={{ opacity: canvasOpacity }}>
         <SceneCanvas />
       </div>
 
@@ -90,7 +88,7 @@ function Enhanced() {
       <TopBar />
 
       <div
-        className="pointer-events-none fixed inset-x-0 bottom-8 z-20 flex flex-col items-center gap-1 font-mono text-xs text-slate-400 transition-opacity duration-500"
+        className="pointer-events-none fixed inset-x-0 bottom-8 z-20 flex flex-col items-center gap-1 font-mono text-xs text-neutral-500 transition-opacity duration-500"
         style={{ opacity: showHint ? 1 : 0 }}
       >
         <span>scroll to enter</span>
@@ -106,7 +104,7 @@ export default function Page() {
   // with the same chrome (name, palette trigger, classic escape) as enhanced mode
   if (!enhanced)
     return (
-      <div className="bg-[#070a12]">
+      <div className="bg-[#0a0a0a]">
         <TopBar fixed={false} />
         <StaticExperience />
       </div>
