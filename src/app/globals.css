@@ -4,73 +4,12 @@
 
 html, body { height: 100%; }
 
-/* Scroll-linked aurora — CSS scroll-driven animation, no JS.
-   Progress is tied to page scroll position, so the motion pauses when scrolling stops. */
-@supports (animation-timeline: scroll()) {
-  .scroll-aurora {
-    animation: aurora-drift linear both;
-    animation-timeline: scroll(root);
-    animation-range: 0 150vh;
-    will-change: transform, opacity;
-  }
-}
-
-@keyframes aurora-drift {
-  to {
-    transform: translateY(45vh) rotate(120deg) scale(1.6);
-    opacity: 0;
-  }
-}
-
-/* Floating background orbs — CSS keyframes only, GPU-accelerated transforms */
-.orb {
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(100px);
-  opacity: 0.15;
-  will-change: transform;
-}
-.orb-1 {
-  width: 480px;
-  height: 480px;
-  top: -120px;
-  left: -100px;
-  background: #8b5cf6;
-  animation: floatOrb1 25s ease-in-out infinite alternate;
-}
-.orb-2 {
-  width: 560px;
-  height: 560px;
-  top: -80px;
-  right: -140px;
-  background: #3b82f6;
-  animation: floatOrb2 30s ease-in-out infinite alternate;
-}
-.orb-3 {
-  width: 500px;
-  height: 500px;
-  bottom: -180px;
-  left: 50%;
-  margin-left: -250px;
-  background: #14b8a6;
-  animation: floatOrb3 20s ease-in-out infinite alternate;
-}
-
-@keyframes floatOrb1 {
-  from { transform: translate(0, 0) scale(1); }
-  to { transform: translate(40px, 60px) scale(1.1); }
-}
-@keyframes floatOrb2 {
-  from { transform: translate(0, 0) scale(1); }
-  to { transform: translate(-50px, 40px) scale(1.05); }
-}
-@keyframes floatOrb3 {
-  from { transform: translate(0, 0) scale(1); }
-  to { transform: translate(30px, -40px) scale(1.08); }
+::selection {
+  background: #171717;
+  color: #fff;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .scroll-aurora { animation: none; }
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;

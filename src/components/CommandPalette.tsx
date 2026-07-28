@@ -7,6 +7,7 @@ import {
   LucideInstagram, ExternalLink, Copy, Check,
 } from 'lucide-react'
 import { useCommandPalette } from './CommandPaletteContext'
+import { scrollToSection } from './experience/scrollStore'
 
 const GITHUB = 'https://github.com/calvinlee326'
 const LINKEDIN = 'https://www.linkedin.com/in/chunchenglee326/'
@@ -26,10 +27,10 @@ interface Item {
 
 // Static items — defined outside the component so they are not recreated on each render
 const NAV_ITEMS: Item[] = [
-  { id: 'skills', label: 'Go to Skills', icon: <Zap className="h-4 w-4" />, onSelect: () => document.getElementById('skills')?.scrollIntoView({ behavior: 'smooth' }) },
-  { id: 'projects', label: 'Go to Projects', icon: <Code2 className="h-4 w-4" />, onSelect: () => document.getElementById('projects')?.scrollIntoView({ behavior: 'smooth' }) },
-  { id: 'resume', label: 'Go to Resume', icon: <FileText className="h-4 w-4" />, onSelect: () => document.getElementById('resume')?.scrollIntoView({ behavior: 'smooth' }) },
-  { id: 'contact', label: 'Go to Contact', icon: <Mail className="h-4 w-4" />, onSelect: () => document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' }) },
+  { id: 'projects', label: 'Go to Projects', icon: <Code2 className="h-4 w-4" />, onSelect: () => scrollToSection('projects') },
+  { id: 'skills', label: 'Go to Skills', icon: <Zap className="h-4 w-4" />, onSelect: () => scrollToSection('skills') },
+  { id: 'resume', label: 'Go to Resume', icon: <FileText className="h-4 w-4" />, onSelect: () => scrollToSection('resume') },
+  { id: 'contact', label: 'Go to Contact', icon: <Mail className="h-4 w-4" />, onSelect: () => scrollToSection('contact') },
 ]
 
 const LINK_ITEMS: Item[] = [
@@ -64,7 +65,7 @@ export function CommandPalette() {
     {
       id: 'copy-email',
       label: 'Copy Email Address',
-      icon: copied ? <Check className="h-4 w-4 text-emerald-400" /> : <Copy className="h-4 w-4" />,
+      icon: copied ? <Check className="h-4 w-4 text-emerald-700" /> : <Copy className="h-4 w-4" />,
       onSelect: () => {
         navigator.clipboard.writeText(EMAIL)
         setCopied(true)
@@ -75,7 +76,7 @@ export function CommandPalette() {
       id: 'contact-me',
       label: 'Go to Contact Form',
       icon: <Mail className="h-4 w-4" />,
-      onSelect: () => { document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' }); setOpen(false) },
+      onSelect: () => { scrollToSection('contact'); setOpen(false) },
     },
   ], [copied, setOpen])
 
@@ -109,22 +110,22 @@ export function CommandPalette() {
               className="fixed left-1/2 top-[20%] z-50 w-full max-w-lg -translate-x-1/2"
             >
               <Command
-                className="rounded-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-slate-900 shadow-2xl overflow-hidden"
+                className="border border-neutral-200 bg-white shadow-2xl overflow-hidden"
                 loop
               >
-                <div className="flex items-center gap-3 border-b border-slate-100 dark:border-white/10 px-4 py-3">
-                  <Code2 className="h-4 w-4 text-blue-400 shrink-0" />
+                <div className="flex items-center gap-3 border-b border-neutral-200 px-4 py-3">
+                  <Code2 className="h-4 w-4 text-neutral-400 shrink-0" />
                   <Command.Input
                     placeholder="Search or jump to…"
-                    className="flex-1 bg-transparent text-sm text-slate-900 dark:text-white placeholder:text-slate-400 outline-none"
+                    className="flex-1 bg-transparent text-sm text-neutral-900 placeholder:text-neutral-400 outline-none"
                   />
-                  <kbd className="hidden sm:flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px] font-medium text-slate-400 bg-slate-100 dark:bg-white/10">
+                  <kbd className="hidden sm:flex items-center gap-1 px-1.5 py-0.5 text-[10px] font-medium text-neutral-400 bg-neutral-100">
                     ESC
                   </kbd>
                 </div>
 
                 <Command.List className="max-h-80 overflow-y-auto p-2">
-                  <Command.Empty className="py-8 text-center text-sm text-slate-400">
+                  <Command.Empty className="py-8 text-center text-sm text-neutral-400">
                     No results found.
                   </Command.Empty>
 
@@ -145,18 +146,18 @@ function CommandGroup({ label, items, onSelect }: { label: string; items: Item[]
   return (
     <Command.Group
       heading={label}
-      className="[&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:py-1.5 [&_[cmdk-group-heading]]:text-[10px] [&_[cmdk-group-heading]]:font-semibold [&_[cmdk-group-heading]]:uppercase [&_[cmdk-group-heading]]:tracking-widest [&_[cmdk-group-heading]]:text-blue-400"
+      className="[&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:py-1.5 [&_[cmdk-group-heading]]:text-[10px] [&_[cmdk-group-heading]]:font-semibold [&_[cmdk-group-heading]]:uppercase [&_[cmdk-group-heading]]:tracking-widest [&_[cmdk-group-heading]]:text-neutral-400"
     >
       {items.map((item) => (
         <Command.Item
           key={item.id}
           value={item.label}
           onSelect={() => onSelect(item.onSelect)}
-          className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-slate-700 dark:text-slate-300 cursor-pointer
-            data-[selected=true]:bg-blue-500/10 data-[selected=true]:text-blue-600 dark:data-[selected=true]:text-blue-300
-            hover:bg-slate-100 dark:hover:bg-white/5 transition-colors"
+          className="flex items-center gap-3 px-3 py-2 text-sm text-neutral-700 cursor-pointer
+            data-[selected=true]:bg-neutral-100 data-[selected=true]:text-neutral-900
+            hover:bg-neutral-50 transition-colors"
         >
-          <span className="text-slate-400 dark:text-slate-500 group-data-[selected=true]:text-blue-400">{item.icon}</span>
+          <span className="text-neutral-400">{item.icon}</span>
           {item.label}
         </Command.Item>
       ))}

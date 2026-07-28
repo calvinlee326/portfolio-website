@@ -8,7 +8,7 @@ export function ScrollProgress() {
   return (
     <motion.div
       style={{ scaleX, transformOrigin: 'left' }}
-      className="fixed top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-blue-500 via-cyan-400 to-emerald-400 z-50"
+      className="fixed top-0 left-0 right-0 h-px bg-neutral-900 z-50"
     />
   )
 }
