@@ -198,6 +198,9 @@ function InteractiveShell() {
   const endRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
+    // Skip the empty-history mount pass: the static tree always renders first,
+    // so this would drag the page down to the terminal before the reveal starts
+    if (history.length === 0) return
     endRef.current?.scrollIntoView({ block: 'nearest' })
   }, [history])
 
