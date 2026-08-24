@@ -65,10 +65,12 @@ function Command({ cmd, localP, start, end, id, children }: CommandProps) {
       </div>
       {/* max-h-0 collapses unrevealed output so the scrollable body only ever
           contains typed history — otherwise hidden content inflates scrollHeight
-          and the bottom-pin clips revealed lines out of reach. */}
+          and the bottom-pin clips revealed lines out of reach. inert keeps the
+          still-hidden links and form out of the tab order and the a11y tree. */}
       <div
+        inert={!done}
         className={`mt-2 pl-1 transition-all duration-500 ${
-          done ? 'translate-y-0 opacity-100' : 'pointer-events-none max-h-0 overflow-hidden translate-y-2 opacity-0'
+          done ? 'translate-y-0 opacity-100' : 'max-h-0 overflow-hidden translate-y-2 opacity-0'
         }`}
       >
         {children}
@@ -214,7 +216,10 @@ function InteractiveShell() {
         setHistory([])
         return
       }
-      setHistory((h) => [...h, { cmd, out: execute(cmd) }])
+      // execute() navigates and opens tabs, so it cannot run inside the
+      // updater — React re-invokes those, and StrictMode does it twice.
+      const out = execute(cmd)
+      setHistory((h) => [...h, { cmd, out }])
     } else if (e.key === 'ArrowUp') {
       e.preventDefault()
       const idx = histIdx < 0 ? history.length - 1 : Math.max(histIdx - 1, 0)
@@ -362,8 +367,12 @@ export function Terminal({ progress, variant }: { progress: number; variant: 'fi
           </div>
         </Command>
 
-        {/* Replay finished: hand the prompt over to the visitor */}
-        {replayDone && <InteractiveShell />}
+        {/* Replay finished: hand the prompt over to the visitor. Kept mounted
+            and merely hidden — unmounting on a scroll back up would wipe the
+            visitor's typed history. */}
+        <div hidden={!replayDone}>
+          <InteractiveShell />
+        </div>
         <div className="pb-10" />
       </div>
 
