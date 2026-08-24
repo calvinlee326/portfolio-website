@@ -151,7 +151,7 @@ function Hero() {
 
       <div className={`${CONTAINER} relative flex min-h-[88dvh] flex-col justify-center py-24`}>
         <FadeIn>
-          <h1 className="text-[clamp(3.25rem,9vw,8rem)] font-bold leading-[0.95] tracking-tighter lg:mix-blend-difference lg:text-white">
+          <h1 className="text-[clamp(3.25rem,9vw,8rem)] font-bold leading-[0.95] tracking-tighter">
             Chun-Cheng
             <br />
             Lee.
