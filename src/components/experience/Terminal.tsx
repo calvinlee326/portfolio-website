@@ -176,7 +176,7 @@ function execute(raw: string): ReactNode {
     case 'linkedin':
       return openExternal(LINKEDIN)
     case 'classic':
-      window.location.href = '/classic'
+      window.location.href = '/'
       return <p className="text-neutral-400">switching to classic layout…</p>
     default:
       return (

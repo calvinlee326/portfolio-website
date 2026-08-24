@@ -1,4 +1,4 @@
-// Shared site content — consumed by both the new 3D experience (/) and /classic.
+// Shared site content — consumed by both the classic site (/) and the 3D experience (/terminal).
 
 export const NAME = 'Chun-Cheng Lee'
 export const LOCATION = 'Los Angeles, CA'

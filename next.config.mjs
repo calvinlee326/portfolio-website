@@ -3,6 +3,11 @@ const nextConfig = {
   reactStrictMode: true,
   // A stray package-lock.json in the home directory makes Turbopack mis-infer the workspace root
   turbopack: { root: import.meta.dirname },
+  // The classic layout moved to the site root; keep the old URL working.
+  // 307 rather than 308 so the move stays reversible without fighting caches.
+  async redirects() {
+    return [{ source: '/classic', destination: '/', permanent: false }]
+  },
   async headers() {
     // Dev-only allowance so impeccable live mode can load.
     const __impeccableLiveDev =
