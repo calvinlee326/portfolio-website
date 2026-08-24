@@ -54,7 +54,7 @@ export function useProgress(): number {
   return useSyncExternalStore(subscribe, getProgress, () => 0)
 }
 
-// Palette navigation. On the enhanced `/` the terminal is position:fixed and
+// Palette navigation. On the enhanced `/terminal` the terminal is position:fixed and
 // page scroll drives the reveal, so scrollIntoView cannot reach a section;
 // jump the page to the progress where that command has fully revealed instead.
 export function scrollToSection(id: string): void {
