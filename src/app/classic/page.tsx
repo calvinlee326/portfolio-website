@@ -133,9 +133,9 @@ function SiteNav() {
 }
 
 // ── HERO ────────────────────────────────────────────────────────────────────
-// Hard split: white sheet left, near-black panel right. The first headline
-// line straddles the seam via mix-blend-difference; a ghost repeat of the
-// surname sits inside the panel behind it as a depth cue.
+// Hard split: white sheet left, near-black panel right. The headline is sized
+// to stay clear of the seam; a ghost repeat of the surname sits inside the
+// panel as a depth cue.
 function Hero() {
   return (
     <section id="top" className="relative isolate overflow-hidden bg-white">
@@ -151,7 +151,7 @@ function Hero() {
 
       <div className={`${CONTAINER} relative flex min-h-[88dvh] flex-col justify-center py-24`}>
         <FadeIn>
-          <h1 className="text-[clamp(3.25rem,10vw,9rem)] font-bold leading-[0.95] tracking-tighter lg:mix-blend-difference lg:text-white">
+          <h1 className="text-[clamp(3.25rem,9vw,8rem)] font-bold leading-[0.95] tracking-tighter">
             Chun-Cheng
             <br />
             Lee.

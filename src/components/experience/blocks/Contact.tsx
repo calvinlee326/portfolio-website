@@ -46,16 +46,16 @@ export const Contact = memo(function Contact() {
       {/* Honeypot */}
       <input name="website" type="text" tabIndex={-1} autoComplete="off" aria-hidden="true" className="hidden" />
       <div className="flex flex-col gap-1">
-        <label className="text-xs text-neutral-500">name:</label>
-        <input name="name" required placeholder="your name" className={field} />
+        <label htmlFor="term-name" className="text-xs text-neutral-500">name:</label>
+        <input id="term-name" name="name" required placeholder="your name" className={field} />
       </div>
       <div className="flex flex-col gap-1">
-        <label className="text-xs text-neutral-500">email:</label>
-        <input name="email" type="email" required placeholder="you@example.com" className={field} />
+        <label htmlFor="term-email" className="text-xs text-neutral-500">email:</label>
+        <input id="term-email" name="email" type="email" required placeholder="you@example.com" className={field} />
       </div>
       <div className="flex flex-col gap-1">
-        <label className="text-xs text-neutral-500">message:</label>
-        <textarea name="message" required rows={4} placeholder="say hello…" className={`${field} resize-none`} />
+        <label htmlFor="term-message" className="text-xs text-neutral-500">message:</label>
+        <textarea id="term-message" name="message" required rows={4} placeholder="say hello…" className={`${field} resize-none`} />
       </div>
       <button
         type="submit"
