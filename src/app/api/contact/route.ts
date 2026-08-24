@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
-import { Redis } from '@upstash/redis'
-import { randomUUID } from 'crypto'
+import { clientIp, rateLimit } from '@/lib/redis'
 
 function stripHtml(str: string) {
   return str.replace(/<[^>]*>/g, '').trim()
@@ -15,54 +14,14 @@ const ContactSchema = z.object({
   website: z.string().max(0, 'Bot detected').optional(),
 })
 
-function getRedis() {
-  if (!process.env.UPSTASH_REDIS_REST_URL || !process.env.UPSTASH_REDIS_REST_TOKEN) return null
-  return new Redis({
-    url: process.env.UPSTASH_REDIS_REST_URL,
-    token: process.env.UPSTASH_REDIS_REST_TOKEN,
-  })
-}
-
-/**
- * Redis-based sliding-window rate limiter.
- * Returns true if the request is allowed, false if it should be blocked.
- */
-async function rateLimit(ip: string, limit = 5, windowSecs = 60): Promise<boolean> {
-  const redis = getRedis()
-  if (!redis) {
-    // If Redis is unavailable, fall back to allowing the request
-    return true
-  }
-  const key = `portfolio:contact:rl:${ip}`
-  const now = Date.now()
-  const windowMs = windowSecs * 1000
-
-  const pipe = redis.pipeline()
-  pipe.zremrangebyscore(key, 0, now - windowMs)
-  pipe.zadd(key, { score: now, member: `${now}:${randomUUID()}` })
-  pipe.zcard(key)
-  pipe.expire(key, windowSecs)
-  const results = await pipe.exec()
-  const count = results[2] as number
-  return count <= limit
-}
-
 export async function POST(req: Request) {
   // Rate limit: 5 submissions per IP per minute
-  const ip =
-    req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? '127.0.0.1'
-
-  try {
-    const allowed = await rateLimit(ip, 5, 60)
-    if (!allowed) {
-      return NextResponse.json(
-        { ok: false, error: 'Too many requests. Please wait a moment.' },
-        { status: 429 }
-      )
-    }
-  } catch (e) {
-    console.error('[contact] Rate limit check failed:', e)
-    // Allow through if rate limiting itself fails
+  const allowed = await rateLimit(`portfolio:contact:rl:${clientIp(req)}`, 5, 60)
+  if (!allowed) {
+    return NextResponse.json(
+      { ok: false, error: 'Too many requests. Please wait a moment.' },
+      { status: 429 }
+    )
   }
 
   try {

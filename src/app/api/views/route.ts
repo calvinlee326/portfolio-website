@@ -1,15 +1,7 @@
 import { NextResponse } from 'next/server'
-import { Redis } from '@upstash/redis'
+import { clientIp, getRedis, rateLimit } from '@/lib/redis'
 
 export const dynamic = 'force-dynamic'
-
-function getRedis() {
-  if (!process.env.UPSTASH_REDIS_REST_URL || !process.env.UPSTASH_REDIS_REST_TOKEN) return null
-  return new Redis({
-    url: process.env.UPSTASH_REDIS_REST_URL,
-    token: process.env.UPSTASH_REDIS_REST_TOKEN,
-  })
-}
 
 // GET — read current count without incrementing
 export async function GET() {
@@ -25,9 +17,15 @@ export async function GET() {
 }
 
 // POST — increment count (called once per session from the client)
-export async function POST() {
+export async function POST(req: Request) {
   const redis = getRedis()
   if (!redis) return NextResponse.json({ count: null })
+
+  // The once-per-session guard lives in sessionStorage, which is client-side
+  // and therefore not a control: cap the increment per IP so the counter
+  // cannot be inflated by hand.
+  const allowed = await rateLimit(`portfolio:views:rl:${clientIp(req)}`, 10, 60)
+  if (!allowed) return GET()
 
   try {
     const count = await redis.incr('portfolio:views')
