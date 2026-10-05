@@ -1,6 +1,6 @@
 'use client'
 import { memo, useEffect, useState } from 'react'
-import { type GitHubRepo, GITHUB_USER, REPO_DESCRIPTIONS, LIVE_DEMOS } from '@/lib/content'
+import { type GitHubRepo, GITHUB_USER, REPO_DESCRIPTIONS, REPO_LIMIT, demoUrl } from '@/lib/content'
 
 // If the GitHub API is unreachable, the page's core content must not collapse
 // into an error line — fall back to the curated repos we already describe.
@@ -13,6 +13,7 @@ const FALLBACK_REPOS: GitHubRepo[] = Object.entries(REPO_DESCRIPTIONS).map(([nam
   forks_count: 0,
   language: null,
   pushed_at: '',
+  homepage: null,
 }))
 
 export const Projects = memo(function Projects() {
@@ -38,7 +39,7 @@ export const Projects = memo(function Projects() {
 
   if (state === 'loading') return <div className="text-neutral-500">fetching commits…</div>
 
-  const list = state === 'error' ? FALLBACK_REPOS : repos
+  const list = state === 'error' ? FALLBACK_REPOS : repos.slice(0, REPO_LIMIT)
 
   return (
     <div className="space-y-2.5">
@@ -47,6 +48,7 @@ export const Projects = memo(function Projects() {
       )}
       {list.map((r) => {
         const hash = (r.id.toString(16) + '0000000').slice(0, 7)
+        const demo = demoUrl(r)
         return (
           <div key={r.id}>
             <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1">
@@ -58,8 +60,8 @@ export const Projects = memo(function Projects() {
                 <span className="text-neutral-400">{r.language}</span>
               )}
               {r.stargazers_count > 0 && <span className="text-neutral-400">★{r.stargazers_count}</span>}
-              {LIVE_DEMOS[r.name] && (
-                <a href={LIVE_DEMOS[r.name]} target="_blank" rel="noreferrer" className="text-emerald-400 hover:underline">
+              {demo && (
+                <a href={demo} target="_blank" rel="noreferrer" className="text-emerald-400 hover:underline">
                   live↗
                 </a>
               )}
