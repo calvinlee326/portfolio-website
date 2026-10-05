@@ -6,8 +6,8 @@ import { Menu, X } from 'lucide-react'
 import { motion, AnimatePresence, MotionConfig } from 'framer-motion'
 import {
   NAME, LOCATION, LANGUAGES, LINKEDIN, GITHUB_USER, RESUME_URL, EMAIL,
-  SKILLS, REPO_DESCRIPTIONS, LIVE_DEMOS, SHOWCASE, RESUME_SUMMARY,
-  toDrivePreview, type GitHubRepo,
+  SKILLS, REPO_DESCRIPTIONS, REPO_LIMIT, SHOWCASE, RESUME_SUMMARY,
+  demoUrl, toDrivePreview, type GitHubRepo,
 } from '@/lib/content'
 
 const CONTAINER = 'mx-auto max-w-[1400px] px-6 lg:px-10'
@@ -36,7 +36,35 @@ function SectionTitle({ children }: { children: React.ReactNode }) {
   return <h2 className="text-4xl sm:text-5xl font-bold tracking-tight">{children}</h2>
 }
 
+// Fetched once here because the stat band and the project rail both use it.
+function useRepos() {
+  const [repos, setRepos] = useState<GitHubRepo[]>([])
+  const [loading, setLoading] = useState(true)
+  const [err, setErr] = useState<string | null>(null)
+
+  useEffect(() => {
+    async function load() {
+      try {
+        const r = await fetch('/api/repos')
+        if (!r.ok) throw new Error('GitHub API error')
+        const all = await r.json()
+        setRepos(Array.isArray(all) ? all : [])
+      } catch {
+        setErr('Could not load GitHub repos.')
+      } finally {
+        setLoading(false)
+      }
+    }
+    load()
+  }, [])
+
+  return { repos, loading, err }
+}
+
+type RepoState = ReturnType<typeof useRepos>
+
 export default function Page() {
+  const repoState = useRepos()
   return (
     <MotionConfig reducedMotion="user">
       <div className="bg-white text-neutral-900">
@@ -44,9 +72,9 @@ export default function Page() {
         <main>
           <Hero />
           <Showcase />
-          <StatBand />
+          <StatBand repoState={repoState} />
           <Skills />
-          <Projects />
+          <Projects repoState={repoState} />
           <Resume />
           <Contact />
           <Footer />
@@ -135,7 +163,8 @@ function SiteNav() {
 // ── HERO ────────────────────────────────────────────────────────────────────
 // Hard split: white sheet left, near-black panel right. The headline is sized
 // to stay clear of the seam; a ghost repeat of the surname sits inside the
-// panel as a depth cue.
+// panel as a depth cue. No entrance motion here: the server-rendered headline
+// must be visible before hydration.
 function Hero() {
   return (
     <section id="top" className="relative isolate overflow-hidden bg-white">
@@ -150,21 +179,19 @@ function Hero() {
       </div>
 
       <div className={`${CONTAINER} relative flex min-h-[88dvh] flex-col justify-center py-24`}>
-        <FadeIn>
-          <h1 className="text-[clamp(3.25rem,9vw,8rem)] font-bold leading-[0.95] tracking-tighter">
-            Chun-Cheng
-            <br />
-            Lee.
-          </h1>
-        </FadeIn>
-        <FadeIn delay={0.1} className="mt-10 max-w-xl lg:max-w-[48%]">
+        <h1 className="text-[clamp(3.25rem,9vw,8rem)] font-bold leading-[0.95] tracking-tighter">
+          Chun-Cheng
+          <br />
+          Lee.
+        </h1>
+        <div className="mt-10 max-w-xl lg:max-w-[48%]">
           <p className="text-lg text-neutral-600 leading-relaxed">
             Backend-focused software engineer. APIs, AI integrations, and payment
             systems you can click into and verify.
           </p>
           <p className="mt-3 text-sm text-neutral-400">{LOCATION}</p>
-        </FadeIn>
-        <FadeIn delay={0.18} className="mt-10 flex flex-wrap items-center gap-6 lg:max-w-[48%]">
+        </div>
+        <div className="mt-10 flex flex-wrap items-center gap-6 lg:max-w-[48%]">
           <a
             href="#projects"
             className="inline-flex h-12 items-center bg-neutral-900 px-7 text-sm font-medium text-white transition hover:bg-neutral-700 active:translate-y-px"
@@ -177,7 +204,7 @@ function Hero() {
           >
             Get in touch
           </a>
-        </FadeIn>
+        </div>
         <div className="mt-12 space-y-2 lg:hidden">
           <OpenToWork />
           <SpotifyWidget />
@@ -274,12 +301,14 @@ function Showcase() {
 }
 
 // ── STAT BAND ────────────────────────────────────────────────────────────────
-// The one deliberate inversion on the page. Numbers are derived from the
-// content model, not invented.
-function StatBand() {
+// The one deliberate inversion on the page. Numbers are derived from live
+// GitHub data and the content model, never invented; repo counts stay blank
+// until that data arrives.
+function StatBand({ repoState: { repos, loading, err } }: { repoState: RepoState }) {
+  const ready = !loading && !err
   const stats = [
-    { value: Object.keys(REPO_DESCRIPTIONS).length, label: 'Projects documented' },
-    { value: Object.keys(LIVE_DEMOS).length, label: 'Live demos running' },
+    { value: ready ? repos.length : null, label: 'Public projects' },
+    { value: ready ? repos.filter(demoUrl).length : null, label: 'Live demos' },
     { value: LANGUAGES.length, label: 'Languages spoken' },
   ]
   return (
@@ -288,7 +317,7 @@ function StatBand() {
         {stats.map((s, i) => (
           <FadeIn key={s.label} delay={i * 0.06}>
             <div className="border-l border-white/15 pl-6">
-              <p className="text-6xl sm:text-7xl font-bold tracking-tight tabular-nums">{s.value}</p>
+              <p className="text-6xl sm:text-7xl font-bold tracking-tight tabular-nums">{s.value ?? '\u00a0'}</p>
               <p className="mt-3 text-sm text-neutral-400">{s.label}</p>
             </div>
           </FadeIn>
@@ -320,7 +349,7 @@ function Skills() {
 }
 
 // ── PROJECTS ─────────────────────────────────────────────────────────────────
-function Projects() {
+function Projects({ repoState }: { repoState: RepoState }) {
   return (
     <section id="projects" className="scroll-mt-16 overflow-hidden bg-neutral-100 py-24 sm:py-32">
       <div className={CONTAINER}>
@@ -341,7 +370,7 @@ function Projects() {
           </div>
         </FadeIn>
       </div>
-      <ProjectRail />
+      <ProjectRail {...repoState} />
     </section>
   )
 }
@@ -350,27 +379,7 @@ function Projects() {
 // continuation. Tiles separate from the band by value, not by borders.
 const RAIL_PAD = 'px-[max(1.5rem,calc((100vw-87.5rem)/2+2.5rem))]'
 
-function ProjectRail() {
-  const [repos, setRepos] = useState<GitHubRepo[]>([])
-  const [loading, setLoading] = useState(true)
-  const [err, setErr] = useState<string | null>(null)
-
-  useEffect(() => {
-    async function load() {
-      try {
-        const r = await fetch('/api/repos')
-        if (!r.ok) throw new Error('GitHub API error')
-        const all = await r.json()
-        setRepos(Array.isArray(all) ? all : [])
-      } catch {
-        setErr('Could not load GitHub repos.')
-      } finally {
-        setLoading(false)
-      }
-    }
-    load()
-  }, [])
-
+function ProjectRail({ repos, loading, err }: RepoState) {
   if (loading) {
     return (
       <div className={`mt-14 flex gap-6 overflow-hidden ${RAIL_PAD}`}>
@@ -398,38 +407,41 @@ function ProjectRail() {
   return (
     <div className="mt-14 overflow-x-auto">
       <div className={`flex w-max snap-x snap-mandatory gap-6 pb-4 ${RAIL_PAD}`}>
-        {repos.map((r) => (
-          <article key={r.id} className="flex w-[85vw] max-w-[420px] shrink-0 snap-start flex-col bg-white p-8">
-            <h3 className="text-xl font-semibold tracking-tight">{r.name}</h3>
-            <p className="mt-3 flex-1 text-sm leading-relaxed text-neutral-600">
-              {REPO_DESCRIPTIONS[r.name] || r.description || 'No description provided.'}
-            </p>
-            <div className="mt-6 flex items-center justify-between text-xs text-neutral-400 tabular-nums">
-              <span>{r.language ?? ''}</span>
-              <span>{new Date(r.pushed_at).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}</span>
-            </div>
-            <div className="mt-5 flex items-center gap-6 border-t border-neutral-100 pt-5 text-sm font-medium">
-              {LIVE_DEMOS[r.name] && (
+        {repos.slice(0, REPO_LIMIT).map((r) => {
+          const demo = demoUrl(r)
+          return (
+            <article key={r.id} className="flex w-[85vw] max-w-[420px] shrink-0 snap-start flex-col bg-white p-8">
+              <h3 className="text-xl font-semibold tracking-tight">{r.name}</h3>
+              <p className="mt-3 flex-1 text-sm leading-relaxed text-neutral-600">
+                {REPO_DESCRIPTIONS[r.name] || r.description || 'No description provided.'}
+              </p>
+              <div className="mt-6 flex items-center justify-between text-xs text-neutral-400 tabular-nums">
+                <span>{r.language ?? ''}</span>
+                <span>{new Date(r.pushed_at).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}</span>
+              </div>
+              <div className="mt-5 flex items-center gap-6 border-t border-neutral-100 pt-5 text-sm font-medium">
+                {demo && (
+                  <a
+                    href={demo}
+                    target="_blank"
+                    rel="noreferrer"
+                    className={`${ACCENT_TEXT} underline underline-offset-4`}
+                  >
+                    Live demo
+                  </a>
+                )}
                 <a
-                  href={LIVE_DEMOS[r.name]}
+                  href={r.html_url}
                   target="_blank"
                   rel="noreferrer"
-                  className={`${ACCENT_TEXT} underline underline-offset-4`}
+                  className="text-neutral-900 underline underline-offset-4 hover:text-neutral-600"
                 >
-                  Live demo
+                  Code
                 </a>
-              )}
-              <a
-                href={r.html_url}
-                target="_blank"
-                rel="noreferrer"
-                className="text-neutral-900 underline underline-offset-4 hover:text-neutral-600"
-              >
-                Code
-              </a>
-            </div>
-          </article>
-        ))}
+              </div>
+            </article>
+          )
+        })}
       </div>
     </div>
   )
@@ -447,7 +459,7 @@ function Resume() {
         <div className="mt-14 grid gap-12 lg:grid-cols-2">
           <FadeIn>
             <div className="aspect-[3/4] w-full overflow-hidden ring-1 ring-neutral-200">
-              <iframe src={preview} title="Resume Preview" className="h-full w-full" allow="autoplay" />
+              <iframe src={preview} title="Resume Preview" className="h-full w-full" loading="lazy" />
             </div>
           </FadeIn>
           <FadeIn delay={0.08}>

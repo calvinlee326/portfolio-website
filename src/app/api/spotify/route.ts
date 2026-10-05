@@ -5,7 +5,13 @@ export const dynamic = 'force-dynamic'
 const TOKEN_URL = 'https://accounts.spotify.com/api/token'
 const NOW_PLAYING_URL = 'https://api.spotify.com/v1/me/player/currently-playing'
 
+// Reused until shortly before it expires, so a poll costs one Spotify call, not two.
+// Module state survives across requests on a warm instance.
+let cachedToken: { value: string; expiresAt: number } | null = null
+
 async function getAccessToken() {
+  if (cachedToken && Date.now() < cachedToken.expiresAt) return cachedToken.value
+
   const { SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET, SPOTIFY_REFRESH_TOKEN } = process.env
   if (!SPOTIFY_CLIENT_ID || !SPOTIFY_CLIENT_SECRET || !SPOTIFY_REFRESH_TOKEN) return null
 
@@ -25,7 +31,11 @@ async function getAccessToken() {
 
   if (!res.ok) return null
   const data = await res.json()
-  return data.access_token as string
+  cachedToken = {
+    value: data.access_token as string,
+    expiresAt: Date.now() + ((data.expires_in as number) - 60) * 1000,
+  }
+  return cachedToken.value
 }
 
 export async function GET() {
@@ -37,6 +47,9 @@ export async function GET() {
       headers: { Authorization: `Bearer ${token}` },
       cache: 'no-store',
     })
+
+    // A revoked token fails before it expires; drop it so the next poll refreshes
+    if (res.status === 401) cachedToken = null
 
     // 204 = nothing playing, 200 = playing
     if (res.status === 204 || !res.ok) {

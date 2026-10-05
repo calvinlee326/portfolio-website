@@ -20,18 +20,18 @@ Backend-focused engineer (Python/Django, REST APIs) who also ships AI integratio
 
 ## Operating Context
 
-- Primary experience at `/`: an interactive 3D "dev terminal" scene (WebGL/Canvas, scroll-driven camera) presenting bio, skills, projects, resume, and contact as terminal commands.
-- Secondary `/classic` route: a conventional scrolling one-page layout with the same content, for users/devices where the 3D experience isn't the right fit.
-- Live GitHub repo data fetched via `/api/repos`; contact form backed by `/api/contact` with Upstash Redis rate limiting; resume served via an embedded Google Drive preview + download link; Spotify integration at `/api/spotify`.
+- Primary experience at `/`: a conventional scrolling one-page layout (the "showroom" surface). The old `/classic` URL redirects here.
+- Alternate `/terminal` route: an interactive 3D "dev terminal" scene (WebGL/Canvas, scroll-driven camera) presenting the same content as terminal commands, with a static fallback for no-WebGL, touch, and reduced-motion devices.
+- Live GitHub repo data fetched via `/api/repos`, ranked by the owner's own latest push (bot commits excluded) and refreshed hourly; contact form backed by `/api/contact` with Upstash Redis rate limiting; resume served via an embedded Google Drive preview + download link; Spotify integration at `/api/spotify`.
 - The primary CTA is exploration of project work (live demos, GitHub links) rather than immediately driving to a contact form or resume download — those remain available but secondary.
 
 ## Capabilities and Constraints
 
 - Built with Next.js (App Router), React, TypeScript, Tailwind CSS; deployed on Vercel with Vercel Analytics.
 - Shared content model lives in `src/lib/content.ts` (bio, skills, project descriptions, resume link, contact links) and is treated as current, confirmed fact — not stale.
-- Framer Motion and custom scroll-store utilities drive motion/animation on both `/` and `/classic`.
+- Framer Motion and custom scroll-store utilities drive motion/animation on both `/` and `/terminal`.
 - Command palette (`cmdk`) provides quick navigation/actions site-wide.
-- `/classic` is a permanent first-class alternate route: the fallback for no-WebGL/reduced-motion users and anyone preferring a conventional layout. Both experiences are maintained from the shared content model.
+- `/` and `/terminal` are both first-class and maintained from the shared content model.
 
 ## Brand Commitments
 
@@ -54,4 +54,4 @@ Backend-focused engineer (Python/Django, REST APIs) who also ships AI integratio
 
 ## Accessibility & Inclusion
 
-No product-specific accessibility requirement has been established beyond standard web accessibility practice; the 3D experience should degrade gracefully for users who can't or don't want WebGL/motion-heavy interaction (the existing `/classic` route already serves this need).
+No product-specific accessibility requirement has been established beyond standard web accessibility practice; the 3D experience at `/terminal` should degrade gracefully for users who can't or don't want WebGL/motion-heavy interaction (it falls back to a static terminal, and `/` is the conventional layout).

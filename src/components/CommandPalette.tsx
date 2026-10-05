@@ -8,11 +8,9 @@ import {
 } from 'lucide-react'
 import { useCommandPalette } from './CommandPaletteContext'
 import { scrollToSection } from './experience/scrollStore'
+import { EMAIL, GITHUB_USER, INSTAGRAM, LINKEDIN, RESUME_URL } from '@/lib/content'
 
-const GITHUB = 'https://github.com/calvinlee326'
-const LINKEDIN = 'https://www.linkedin.com/in/chunchenglee326/'
-const RESUME_URL = 'https://drive.google.com/file/d/1IdgzCeSSrZgQ_iYf0er2amxe0KF3zIhl/view?usp=sharing'
-const EMAIL = 'chunchenglee@outlook.com'
+const GITHUB = `https://github.com/${GITHUB_USER}`
 
 function openExternal(url: string) {
   window.open(url, '_blank', 'noopener,noreferrer')
@@ -36,7 +34,7 @@ const NAV_ITEMS: Item[] = [
 const LINK_ITEMS: Item[] = [
   { id: 'github', label: 'Open GitHub', icon: <LucideGithub className="h-4 w-4" />, onSelect: () => openExternal(GITHUB) },
   { id: 'linkedin', label: 'Open LinkedIn', icon: <LucideLinkedin className="h-4 w-4" />, onSelect: () => openExternal(LINKEDIN) },
-  { id: 'instagram', label: 'Open Instagram', icon: <LucideInstagram className="h-4 w-4" />, onSelect: () => openExternal('https://instagram.com/calvinlee326') },
+  { id: 'instagram', label: 'Open Instagram', icon: <LucideInstagram className="h-4 w-4" />, onSelect: () => openExternal(INSTAGRAM) },
   { id: 'resume-pdf', label: 'View Resume PDF', icon: <ExternalLink className="h-4 w-4" />, onSelect: () => openExternal(RESUME_URL) },
 ]
 

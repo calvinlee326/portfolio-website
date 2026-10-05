@@ -9,9 +9,9 @@ const nextConfig = {
     return [{ source: '/classic', destination: '/', permanent: false }]
   },
   async headers() {
+    const isDev = process.env.NODE_ENV === 'development'
     // Dev-only allowance so impeccable live mode can load.
-    const __impeccableLiveDev =
-      process.env.NODE_ENV === 'development' ? ' http://localhost:8400' : ''
+    const __impeccableLiveDev = isDev ? ' http://localhost:8400' : ''
     return [
       {
         source: '/(.*)',
@@ -28,8 +28,9 @@ const nextConfig = {
             key: 'Content-Security-Policy',
             value: [
               "default-src 'self'",
-              // Next.js App Router requires unsafe-inline for hydration scripts
-              `script-src 'self' 'unsafe-inline' 'unsafe-eval'${__impeccableLiveDev}`,
+              // Next.js App Router requires unsafe-inline for hydration scripts;
+              // unsafe-eval is only needed by the dev server (React refresh)
+              `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ''}${__impeccableLiveDev}`,
               // Tailwind + Framer Motion use inline styles
               "style-src 'self' 'unsafe-inline'",
               // Allow images from anywhere (GitHub avatars, etc.) and data URIs
