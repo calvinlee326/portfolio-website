@@ -6,8 +6,8 @@ import { Menu, X } from 'lucide-react'
 import { motion, AnimatePresence, MotionConfig } from 'framer-motion'
 import {
   NAME, LOCATION, LANGUAGES, LINKEDIN, GITHUB_USER, RESUME_URL, EMAIL,
-  SKILLS, REPO_DESCRIPTIONS, REPO_LIMIT, SHOWCASE, RESUME_SUMMARY,
-  demoUrl, toDrivePreview, type GitHubRepo,
+  SKILLS, REPO_DESCRIPTIONS, REPO_LIMIT, SHOWCASE, EXPERIENCE,
+  demoUrl, type GitHubRepo,
 } from '@/lib/content'
 
 const CONTAINER = 'mx-auto max-w-[1400px] px-6 lg:px-10'
@@ -75,7 +75,7 @@ export default function Page() {
           <StatBand repoState={repoState} />
           <Skills />
           <Projects repoState={repoState} />
-          <Resume />
+          <Experience />
           <Contact />
           <Footer />
         </main>
@@ -91,9 +91,11 @@ function SiteNav() {
   const links = [
     { href: '#skills', label: 'Skills' },
     { href: '#projects', label: 'Projects' },
-    { href: '#resume', label: 'Resume' },
+    { href: '#experience', label: 'Experience' },
+    { href: RESUME_URL, label: 'Resume' },
     { href: '#contact', label: 'Contact' },
   ]
+  const ext = (href: string) => (href.startsWith('http') ? { target: '_blank', rel: 'noreferrer' } : {})
   return (
     <header className="sticky top-0 z-40 border-b border-neutral-200 bg-white/95 backdrop-blur-sm">
       <div className={`${CONTAINER} flex h-16 items-center justify-between`}>
@@ -103,6 +105,7 @@ function SiteNav() {
             <a
               key={l.href}
               href={l.href}
+              {...ext(l.href)}
               className="text-sm text-neutral-600 hover:text-neutral-900 hover:underline underline-offset-4 transition-colors"
             >
               {l.label}
@@ -143,6 +146,7 @@ function SiteNav() {
                 <a
                   key={l.href}
                   href={l.href}
+                  {...ext(l.href)}
                   onClick={() => setOpen(false)}
                   className="text-sm text-neutral-600 hover:text-neutral-900"
                 >
@@ -405,7 +409,9 @@ function ProjectRail({ repos, loading, err }: RepoState) {
   }
 
   return (
-    <div className="mt-14 overflow-x-auto">
+    // Scrollbar thumb stays invisible (space still reserved, so nothing shifts)
+    // until the pointer or keyboard focus is on the rail.
+    <div className="mt-14 overflow-x-auto [scrollbar-color:transparent_transparent] hover:[scrollbar-color:theme(colors.neutral.400)_transparent] focus-within:[scrollbar-color:theme(colors.neutral.400)_transparent]">
       <div className={`flex w-max snap-x snap-mandatory gap-6 pb-4 ${RAIL_PAD}`}>
         {repos.slice(0, REPO_LIMIT).map((r) => {
           const demo = demoUrl(r)
@@ -447,43 +453,42 @@ function ProjectRail({ repos, loading, err }: RepoState) {
   )
 }
 
-// ── RESUME ───────────────────────────────────────────────────────────────────
-function Resume() {
-  const preview = toDrivePreview(RESUME_URL)
+// ── EXPERIENCE ───────────────────────────────────────────────────────────────
+// Roles separate by space alone; the role name carries the weight.
+function Experience() {
   return (
-    <section id="resume" className="scroll-mt-16 bg-white py-24 sm:py-32">
+    <section id="experience" className="scroll-mt-16 bg-white py-24 sm:py-32">
       <div className={CONTAINER}>
         <FadeIn>
-          <SectionTitle>Resume.</SectionTitle>
+          <div className="flex flex-wrap items-end justify-between gap-4">
+            <SectionTitle>Experience.</SectionTitle>
+            <a
+              href={RESUME_URL}
+              target="_blank"
+              rel="noreferrer"
+              className="text-sm font-medium text-neutral-900 underline underline-offset-4 hover:text-neutral-600"
+            >
+              View resume
+            </a>
+          </div>
         </FadeIn>
-        <div className="mt-14 grid gap-12 lg:grid-cols-2">
-          <FadeIn>
-            <div className="aspect-[3/4] w-full overflow-hidden ring-1 ring-neutral-200">
-              <iframe src={preview} title="Resume Preview" className="h-full w-full" loading="lazy" />
-            </div>
-          </FadeIn>
-          <FadeIn delay={0.08}>
-            <div className="flex h-full flex-col">
-              <div className="flex-1 divide-y divide-neutral-200">
-                {RESUME_SUMMARY.map((item) => (
-                  <div key={item.label} className="py-6 first:pt-0">
-                    <p className="font-semibold">{item.label}</p>
-                    <p className="mt-1.5 text-sm leading-relaxed text-neutral-600">{item.desc}</p>
-                  </div>
-                ))}
-              </div>
-              <div className="mt-10">
-                <a
-                  href={RESUME_URL}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="inline-flex h-12 items-center bg-neutral-900 px-7 text-sm font-medium text-white transition hover:bg-neutral-700 active:translate-y-px"
-                >
-                  Open resume
-                </a>
-              </div>
-            </div>
-          </FadeIn>
+        <div className="mt-14 space-y-16">
+          {EXPERIENCE.map((job) => (
+            <FadeIn key={job.company}>
+              <article className="grid gap-6 md:grid-cols-12 md:gap-8">
+                <div className="md:col-span-4">
+                  <h3 className="text-2xl font-semibold tracking-tight">{job.company}</h3>
+                  <p className="mt-2 text-sm text-neutral-600">{job.role}</p>
+                  <p className="mt-1 text-sm text-neutral-400 tabular-nums">{job.period}</p>
+                </div>
+                <ul className="space-y-4 md:col-span-8">
+                  {job.points.map((p) => (
+                    <li key={p} className="max-w-3xl leading-relaxed text-neutral-600">{p}</li>
+                  ))}
+                </ul>
+              </article>
+            </FadeIn>
+          ))}
         </div>
       </div>
     </section>

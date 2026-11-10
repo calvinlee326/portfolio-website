@@ -1,8 +1,8 @@
 'use client'
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import {
-  NAME, LOCATION, LANGUAGES, BIO, SKILLS, RESUME_URL, RESUME_SUMMARY,
-  toDrivePreview, EMAIL, LINKEDIN, GITHUB_USER,
+  NAME, LOCATION, LANGUAGES, BIO, SKILLS, RESUME_URL, RESUME_SUMMARY, EXPERIENCE,
+  EMAIL, LINKEDIN, GITHUB_USER,
 } from '@/lib/content'
 import { rangeProgress, SCHEDULE } from './util'
 import { Projects } from './blocks/Projects'
@@ -39,6 +39,37 @@ function SkillsListing() {
           </div>
         </div>
       ))}
+    </div>
+  )
+}
+
+function ExperienceListing() {
+  return (
+    <div className="space-y-5">
+      {EXPERIENCE.map((job) => (
+        <div key={job.company}>
+          <div className="text-neutral-100">
+            {job.company} <span className="text-neutral-500">· {job.role}</span>
+          </div>
+          <div className="text-neutral-500">{job.period}</div>
+          <div className="mt-1.5 space-y-1">
+            {job.points.map((p) => (
+              <div key={p} className="flex gap-2">
+                <span className="text-neutral-600">-</span>
+                <span className="text-neutral-400">{p}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      ))}
+      <a
+        href={RESUME_URL}
+        target="_blank"
+        rel="noreferrer"
+        className="inline-block text-neutral-100 underline underline-offset-4 hover:text-white"
+      >
+        open resume.pdf ↗
+      </a>
     </div>
   )
 }
@@ -84,6 +115,7 @@ const COMMANDS = [
   ['help', 'list available commands'],
   ['whoami', 'who is this'],
   ['projects', 'real repos, live from GitHub'],
+  ['experience', 'where I have worked'],
   ['skills', 'what I work with'],
   ['about', 'short bio'],
   ['resume', 'summary + download'],
@@ -154,6 +186,9 @@ function execute(raw: string): ReactNode {
     case 'git log':
     case 'git log --oneline':
       return <Projects />
+    case 'experience':
+    case 'cat experience.md':
+      return <ExperienceListing />
     case 'skills':
     case 'ls':
     case 'ls skills':
@@ -315,39 +350,16 @@ export function Terminal({ progress, variant }: { progress: number; variant: 'fi
           <Projects />
         </Command>
 
+        <Command cmd="cat experience.md" localP={localP} {...SCHEDULE.experience} id="experience">
+          <ExperienceListing />
+        </Command>
+
         <Command cmd="cat about.txt" localP={localP} {...SCHEDULE.about}>
           <p className="max-w-2xl text-neutral-300">{BIO}</p>
         </Command>
 
         <Command cmd="ls skills/" localP={localP} {...SCHEDULE.skills} id="skills">
           <SkillsListing />
-        </Command>
-
-        <Command cmd="cat resume.pdf" localP={localP} {...SCHEDULE.resume} id="resume">
-          <div className="space-y-4">
-            <div className="space-y-2">
-              {RESUME_SUMMARY.map((item) => (
-                <div key={item.label} className="flex gap-2">
-                  <span className="text-emerald-400">▸</span>
-                  <div>
-                    <span className="text-neutral-100">{item.label}</span>
-                    <span className="text-neutral-400">: {item.desc}</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-            <div className="aspect-[3/4] w-full max-w-sm overflow-hidden border border-white/10">
-              <iframe src={toDrivePreview(RESUME_URL)} title="Resume preview" className="h-full w-full" allow="autoplay" />
-            </div>
-            <a
-              href={RESUME_URL}
-              target="_blank"
-              rel="noreferrer"
-              className="inline-block bg-white px-4 py-2 font-medium text-neutral-950 transition hover:bg-neutral-200"
-            >
-              download resume ↓
-            </a>
-          </div>
         </Command>
 
         <Command cmd="./contact.sh" localP={localP} {...SCHEDULE.contact} id="contact">

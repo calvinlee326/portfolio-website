@@ -3,7 +3,7 @@ import { useEffect, useState, useCallback, useMemo } from 'react'
 import { Command } from 'cmdk'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
-  Zap, Code2, FileText, Mail, LucideGithub, LucideLinkedin,
+  Zap, Code2, Briefcase, Mail, LucideGithub, LucideLinkedin,
   LucideInstagram, ExternalLink, Copy, Check,
 } from 'lucide-react'
 import { useCommandPalette } from './CommandPaletteContext'
@@ -26,8 +26,8 @@ interface Item {
 // Static items — defined outside the component so they are not recreated on each render
 const NAV_ITEMS: Item[] = [
   { id: 'projects', label: 'Go to Projects', icon: <Code2 className="h-4 w-4" />, onSelect: () => scrollToSection('projects') },
+  { id: 'experience', label: 'Go to Experience', icon: <Briefcase className="h-4 w-4" />, onSelect: () => scrollToSection('experience') },
   { id: 'skills', label: 'Go to Skills', icon: <Zap className="h-4 w-4" />, onSelect: () => scrollToSection('skills') },
-  { id: 'resume', label: 'Go to Resume', icon: <FileText className="h-4 w-4" />, onSelect: () => scrollToSection('resume') },
   { id: 'contact', label: 'Go to Contact', icon: <Mail className="h-4 w-4" />, onSelect: () => scrollToSection('contact') },
 ]
 

@@ -14,8 +14,8 @@ export function rangeProgress(p: number, start: number, end: number): number {
 export const SCHEDULE = {
   whoami: { start: 0, end: 0.05 },
   projects: { start: 0.09, end: 0.17 },
-  about: { start: 0.26, end: 0.33 },
-  skills: { start: 0.4, end: 0.48 },
-  resume: { start: 0.6, end: 0.68 },
+  experience: { start: 0.27, end: 0.35 },
+  about: { start: 0.47, end: 0.53 },
+  skills: { start: 0.6, end: 0.68 },
   contact: { start: 0.8, end: 0.88 },
 } as const
