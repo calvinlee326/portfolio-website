@@ -22,7 +22,7 @@ Backend-focused engineer (Python/Django, REST APIs) who also ships AI integratio
 
 - Primary experience at `/`: a conventional scrolling one-page layout (the "showroom" surface). The old `/classic` URL redirects here.
 - Alternate `/terminal` route: an interactive 3D "dev terminal" scene (WebGL/Canvas, scroll-driven camera) presenting the same content as terminal commands, with a static fallback for no-WebGL, touch, and reduced-motion devices.
-- Live GitHub repo data fetched via `/api/repos`, with the `FEATURED` repos pinned first and the rest ranked by the owner's own latest push (bot commits excluded) and refreshed hourly; contact form backed by `/api/contact` with Upstash Redis rate limiting; resume served via an embedded Google Drive preview + download link; Spotify integration at `/api/spotify`.
+- Live GitHub repo data fetched via `/api/repos`, with the `FEATURED` repos pinned first and the rest ranked by the owner's own latest push (bot commits excluded) and refreshed hourly; contact form backed by `/api/contact` with Upstash Redis rate limiting; resume linked from the Experience section (Google Drive PDF, no embedded preview); Spotify integration at `/api/spotify`.
 - The primary CTA is exploration of project work (live demos, GitHub links) rather than immediately driving to a contact form or resume download — those remain available but secondary.
 
 ## Capabilities and Constraints
@@ -42,7 +42,7 @@ Backend-focused engineer (Python/Django, REST APIs) who also ships AI integratio
 
 - Real project list with descriptions in `REPO_DESCRIPTIONS` (`src/lib/content.ts`), including live demos for `blackjack`, `scoreboard`, and `palm-reading-app`.
 - Live GitHub repo data via the GitHub API (`/api/repos`).
-- Actual resume file (Google Drive-hosted PDF) embedded and downloadable.
+- Actual resume file (Google Drive-hosted PDF), linked rather than embedded.
 - No testimonials, press, or third-party case studies exist — future work must not fabricate these.
 
 ## Product Principles

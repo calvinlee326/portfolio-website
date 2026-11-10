@@ -36,8 +36,6 @@ const nextConfig = {
               // Allow images from anywhere (GitHub avatars, etc.) and data URIs
               "img-src 'self' data: https:",
               "font-src 'self' data:",
-              // Resume iframe is served from Google Drive
-              "frame-src https://drive.google.com",
               // All API calls go through our own Next.js routes now
               `connect-src 'self'${__impeccableLiveDev}`,
               "object-src 'none'",
