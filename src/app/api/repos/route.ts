@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { GITHUB_USER, type GitHubRepo } from '@/lib/content'
+import { FEATURED, GITHUB_USER, type GitHubRepo } from '@/lib/content'
 
 interface GitHubEvent {
   type: string
@@ -56,11 +56,15 @@ export async function GET() {
     const feedStart = events.map((ev) => ev.created_at).sort()[0] ?? ''
     const rank = (x: GitHubRepo) =>
       ownPush.get(`${GITHUB_USER}/${x.name}`) ?? (x.pushed_at < feedStart ? x.pushed_at : feedStart)
+    const pin = (x: GitHubRepo) => {
+      const i = FEATURED.indexOf(x.name)
+      return i < 0 ? FEATURED.length : i
+    }
 
     const filtered = repos
       // The repo named after the account is the profile README, not a project.
       .filter((x) => !x.fork && x.name !== GITHUB_USER)
-      .sort((a, b) => rank(b).localeCompare(rank(a)) || b.pushed_at.localeCompare(a.pushed_at))
+      .sort((a, b) => pin(a) - pin(b) || rank(b).localeCompare(rank(a)) || b.pushed_at.localeCompare(a.pushed_at))
       .map(({ id, name, description, html_url, stargazers_count, forks_count, language, pushed_at, homepage }): GitHubRepo => ({
         id, name, description, html_url, stargazers_count, forks_count, language, pushed_at, homepage: homepage && WEB_URL.test(homepage) ? homepage : null,
       }))

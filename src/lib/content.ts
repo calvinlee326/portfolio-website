@@ -13,19 +13,31 @@ export const BIO = 'Backend-focused SWE who builds APIs, AI integrations, and pa
 
 export const SKILLS: Record<string, string[]> = {
   'Languages': ['Python', 'JavaScript', 'TypeScript', 'SQL', 'Java', 'Kotlin'],
-  'Backend & APIs': ['Django', 'Django REST Framework', 'FastAPI', 'Flask', 'Node.js', 'Express.js', 'REST API Design', 'Webhook Handling', 'JWT Authentication', 'Google OAuth'],
+  'Backend & Data': ['Django', 'Django REST Framework', 'FastAPI', 'Flask', 'Node.js', 'Express.js', 'PostgreSQL', 'MySQL', 'MongoDB', 'Redis', 'REST API Design', 'JWT Authentication', 'Google OAuth'],
   'Frontend': ['React', 'HTML/CSS', 'Bootstrap', 'Chrome Extension APIs (MV3)'],
-  'AI / LLM Integration': ['Claude API (streaming, tool use)', 'OpenAI GPT-4o and Vision', 'RAG pipelines', 'Chroma vector store', 'MCP servers', 'SSE streaming', 'Prompt engineering'],
-  'Databases & Caching': ['PostgreSQL', 'MySQL', 'MongoDB', 'Redis', 'Database Design', 'Query Optimization'],
-  'DevOps & Cloud': ['GitHub Actions (CI/CD)', 'Heroku', 'Linux', 'Git', 'Docker'],
+  'AI & LLMs': ['Claude API (streaming, tool use)', 'OpenAI GPT-4o and Vision', 'RAG with Chroma', 'MCP servers', 'SSE streaming', 'Prompt engineering', 'Claude Code', 'Cursor', 'GitHub Copilot'],
   'Payments': ['Stripe API', 'Subscription Billing', 'Invoice Automation', 'Webhook Event Processing'],
-  'Testing & QA': ['Unit Testing', 'Integration Testing', 'Test Automation', 'Test Case Design', 'Jira', 'Defect Tracking'],
-  'AI Dev Tools': ['Claude Code', 'Cursor (AI-assisted IDE)', 'GitHub Copilot', 'LLM-augmented development'],
-  'Practices': ['Agile/Scrum', 'Code Review', 'API Security', 'Technical Documentation', 'Cross-Functional Collaboration'],
-  'Currently Learning': ['AWS (EC2, S3, RDS)', 'System Design'],
+  'Testing & DevOps': ['Unit Testing', 'Integration Testing', 'Test Automation', 'GitHub Actions (CI/CD)', 'Docker', 'Linux', 'Git', 'Heroku', 'Jira'],
 }
 
+// Pinned to the front of the project list, in this order; the rest follow by
+// latest push. Also the offline fallback when GitHub is unreachable.
+export const FEATURED = [
+  'settlo',
+  'code-review-memory',
+  'h1b-sponsor-mcp',
+  'codex-hud',
+  'api-contract-drift-detector',
+  'h1b-job-scraper',
+]
+
 export const REPO_DESCRIPTIONS: Record<string, string> = {
+  'settlo': 'Bill-splitting PWA for groups and friends. Settles who owes whom in the fewest transactions, across seven currencies with each expense locked to that day\'s rate. FastAPI, PostgreSQL, React, Google sign-in.',
+  'code-review-memory': 'AI code-review service for GitHub pull requests. A plan-then-audit LLM pipeline streams its progress over SSE and remembers your team\'s style rules across reviews.',
+  'h1b-sponsor-mcp': 'MCP server that lets an AI assistant query USCIS H-1B employer data: a company\'s sponsorship history, or the largest sponsors in a given state.',
+  'codex-hud': 'Terminal HUD and usage dashboard for the OpenAI Codex CLI, published on npm. Local-first: reads only metadata Codex already writes and makes no network calls.',
+  'api-contract-drift-detector': 'CLI that diffs two OpenAPI specs and classifies every change as breaking, non-breaking, or a warning, so API regressions are caught before deploy.',
+  'h1b-job-scraper': 'Scrapes ~2,000 H1B-sponsoring companies daily on GitHub Actions, flags salary anomalies by z-score, and ranks companies by salary and visa volume.',
   'palm-reading-app': 'AI-powered palm reading web app using GPT-4o Vision. Upload a palm photo and get personality, love & fortune analysis. Built with FastAPI + Next.js.',
   'summary-extension': 'Chrome extension that summarizes selected text using GPT via a secure backend API. Right-click any text → instant AI summary.',
   'aiagent': 'Collection of AI agent workflow patterns using OpenAI GPT — structured outputs, tool calling, prompt chaining, and external API integration.',
@@ -38,6 +50,8 @@ export const REPO_DESCRIPTIONS: Record<string, string> = {
 }
 
 export const LIVE_DEMOS: Record<string, string> = {
+  'settlo': 'https://settlo-sooty.vercel.app',
+  'code-review-memory': 'https://code-review-memory.onrender.com/api/',
   'blackjack': 'https://bbblackjack.netlify.app/',
   'scoreboard': 'https://cosmic-praline-3c086a.netlify.app',
   'palm-reading-app': 'https://palm-reading-app-iota.vercel.app',
