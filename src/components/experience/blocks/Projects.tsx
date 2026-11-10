@@ -1,13 +1,13 @@
 'use client'
 import { memo, useEffect, useState } from 'react'
-import { type GitHubRepo, GITHUB_USER, REPO_DESCRIPTIONS, REPO_LIMIT, demoUrl } from '@/lib/content'
+import { type GitHubRepo, FEATURED, GITHUB_USER, REPO_DESCRIPTIONS, REPO_LIMIT, demoUrl } from '@/lib/content'
 
 // If the GitHub API is unreachable, the page's core content must not collapse
-// into an error line — fall back to the curated repos we already describe.
-const FALLBACK_REPOS: GitHubRepo[] = Object.entries(REPO_DESCRIPTIONS).map(([name, description]) => ({
+// into an error line — fall back to the featured repos.
+const FALLBACK_REPOS: GitHubRepo[] = FEATURED.map((name) => ({
   id: Array.from(name).reduce((a, c) => (a * 31 + c.charCodeAt(0)) >>> 0, 7),
   name,
-  description,
+  description: null,
   html_url: `https://github.com/${GITHUB_USER}/${name}`,
   stargazers_count: 0,
   forks_count: 0,

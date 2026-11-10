@@ -6,7 +6,7 @@ Live at [calvinlee-326.com](https://www.calvinlee-326.com).
 
 ## Features
 
-- `/`: one-page portfolio; the "Real work" rail is pulled live from the GitHub API (refreshed hourly, ranked by my own latest push)
+- `/`: one-page portfolio; the "Real work" rail is pulled live from the GitHub API (refreshed hourly; featured repos first, then ranked by my own latest push)
 - `/terminal`: scroll-driven 3D "dev terminal" (three.js) with a static fallback
 - Contact form (Resend) with Upstash Redis rate limiting, view counter, Spotify now-playing, ⌘K command palette
 
